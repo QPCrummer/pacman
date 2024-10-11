@@ -12,8 +12,11 @@ impl Plugin for GameStatePlugin {
 }
 
 /// The states of the games state machine.
+/// TODO Add Main Menu GameState
 #[derive(States, Reflect, Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub enum GameState {
+    /// Ghost Introductions and waits for the user to press start
+    MainMenu,
     /// Perform necessary setup steps before the game can start
     Setup(Setup),
     /// Spawn the maze

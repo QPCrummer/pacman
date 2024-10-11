@@ -1,8 +1,6 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-#[cfg(debug_assertions)]
-use bevy_inspector_egui::quick::ResourceInspectorPlugin;
 
 use crate::core::prelude::*;
 
@@ -23,11 +21,6 @@ impl Plugin for EdiblesPlugin {
             .register_type::<EnergizerTimer>()
             .add_event::<EAllEdiblesEaten>()
             .add_event::<EnergizerOver>()
-        ;
-
-        #[cfg(debug_assertions)]
-        app
-            .add_plugins(ResourceInspectorPlugin::<EatenDots>::default())
         ;
     }
 }

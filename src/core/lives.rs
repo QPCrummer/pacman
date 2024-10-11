@@ -1,6 +1,4 @@
 use bevy::prelude::*;
-#[cfg(debug_assertions)]
-use bevy_inspector_egui::quick::ResourceInspectorPlugin;
 
 pub(super) struct LivesPlugin;
 
@@ -8,11 +6,6 @@ impl Plugin for LivesPlugin {
     fn build(&self, app: &mut App) {
         app
             .register_type::<Lives>()
-        ;
-
-        #[cfg(debug_assertions)]
-        app
-            .add_plugins(ResourceInspectorPlugin::<Lives>::default())
         ;
     }
 }

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-pub const WINDOW_WIDTH: f32 = 1280.0;
+pub const WINDOW_WIDTH: f32 = 1200.0;
 pub const WINDOW_HEIGHT: f32 = 720.0;
 
 pub const NUM_GHOST_TYPES: usize = 4;
