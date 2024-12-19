@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use vleue_kinetoscope::AnimatedImageBundle;
 use crate::core::prelude::*;
 use crate::core::system_sets::UpdateGameState;
+use crate::game::music;
 use crate::game::ui::main_menu_screen;
 
 pub(super) struct GameStateTransitionPlugin;
@@ -77,6 +78,7 @@ fn update_state(
                     ..Default::default()
                 }, Cutscene));
                 cutscene_playing.0 = true;
+                music::play_cutscene_sound(commands, &asset_server, cutscene);
             } else {
                 switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 3.0, Game(Ready), &mut cutscene_playing);
             }

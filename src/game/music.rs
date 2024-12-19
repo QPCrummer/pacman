@@ -48,6 +48,21 @@ fn play_start_sound(
     ));
 }
 
+pub fn play_cutscene_sound(
+    mut commands: Commands,
+    asset_server: &Res<AssetServer>,
+    cutscene: i8,
+) {
+    commands.spawn((
+        Name::new(format!("CutsceneSound{}", cutscene)),
+        SoundEffect::new(11),
+        AudioBundle {
+            source: asset_server.load(format!("sounds/cutscene{}.ogg", cutscene)),
+            ..default()
+        }
+    ));
+}
+
 /// Starts every background track at the same time with volume of 0.
 fn init_background_music(
     mut commands: Commands,
