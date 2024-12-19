@@ -36,6 +36,7 @@ struct MainMenuScreen;
 #[derive(Resource)]
 struct MainMenuScreenResources {
     enabled: bool,
+    next_frame: i8,
 }
 
 #[derive(Resource, Deref, DerefMut)]
@@ -43,7 +44,6 @@ struct MainMenuTimer(Timer);
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
 ) {
     commands.spawn((Camera2dBundle {
         camera: Camera {
@@ -53,18 +53,10 @@ fn setup(
         ..Default::default()
     }, MainMenuScreen));
 
-    commands.insert_resource(MainMenuScreenResources { enabled: true });
-
-    // TODO Figure out performance degradation over time
-    commands.spawn((AnimatedImageBundle {
-        animated_image: asset_server.load("cutscene/main_menu_animation.gif"),
-        transform: Transform {
-            translation: Vec3::new(get_relative_x(0.45), get_relative_y(0.60), 0.0),
-            scale: Vec3::splat(0.3), // Scale the sprite to its original size
-            ..Default::default()
-        },
-        ..Default::default()
-    }, MainMenuScreen,));
+    commands.insert_resource(MainMenuScreenResources {
+        enabled: true,
+        next_frame: 8,
+    });
 }
 
 fn check_inputs(
@@ -84,7 +76,7 @@ fn check_inputs(
 fn spawn_screen(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    toggle: Res<MainMenuScreenResources>,
+    mut toggle: ResMut<MainMenuScreenResources>,
     mut timer: ResMut<MainMenuTimer>,
     time: Res<Time>,
 ) {
@@ -95,7 +87,8 @@ fn spawn_screen(
     timer.tick(time.delta());
     let time_left = timer.remaining().as_secs();
 
-    if time_left < 8 {
+    if time_left < 8 && toggle.next_frame == 8 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("CharNickText"),
             MainMenuScreen,
@@ -115,7 +108,8 @@ fn spawn_screen(
         ));
     }
 
-    if time_left < 7 {
+    if time_left < 7 && toggle.next_frame == 7 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("BlinkyText"),
             MainMenuScreen,
@@ -145,7 +139,8 @@ fn spawn_screen(
         }, MainMenuScreen,));
     }
 
-    if time_left < 6 {
+    if time_left < 6 && toggle.next_frame == 6 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("PinkyText"),
             MainMenuScreen,
@@ -175,7 +170,8 @@ fn spawn_screen(
         }, MainMenuScreen,));
     }
 
-    if time_left < 5 {
+    if time_left < 5 && toggle.next_frame == 5 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("InkyText"),
             MainMenuScreen,
@@ -205,7 +201,8 @@ fn spawn_screen(
         }, MainMenuScreen,));
     }
 
-    if time_left < 4 {
+    if time_left < 4 && toggle.next_frame == 4 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("ClydeText"),
             MainMenuScreen,
@@ -235,7 +232,8 @@ fn spawn_screen(
         }, MainMenuScreen,));
     }
 
-    if time_left < 3 {
+    if time_left < 3 && toggle.next_frame == 3 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("PelletText"),
             MainMenuScreen,
@@ -293,7 +291,12 @@ fn spawn_screen(
         }, MainMenuScreen,));
     }
 
-    if time_left < 1 {
+    if time_left < 2 && toggle.next_frame == 2 {
+        toggle.next_frame -= 1;
+    }
+
+    if time_left < 1 && toggle.next_frame == 1 {
+        toggle.next_frame -= 1;
         commands.spawn((
             Name::new("StartText"),
             MainMenuScreen,
@@ -311,6 +314,16 @@ fn spawn_screen(
                 ..default()
             }),
         ));
+
+        commands.spawn((AnimatedImageBundle {
+            animated_image: asset_server.load("cutscene/main_menu_animation.gif"),
+            transform: Transform {
+                translation: Vec3::new(get_relative_x(0.45), get_relative_y(0.60), 0.0),
+                scale: Vec3::splat(0.3), // Scale the sprite to its original size
+                ..Default::default()
+            },
+            ..Default::default()
+        }, MainMenuScreen,));
     }
 }
 
