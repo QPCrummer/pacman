@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-#[cfg(debug_assertions)]
+//#[cfg(debug_assertions)]
 
 pub(super) struct LevelPlugin;
 

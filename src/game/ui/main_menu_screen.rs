@@ -1,6 +1,7 @@
-use crate::GameState::{Spawn, MainMenu};
 use crate::core::constants::FONT;
+use crate::core::game_state::GameState;
 use crate::core::prelude::{SpawnMapScene, WINDOW_HEIGHT, WINDOW_WIDTH};
+use crate::GameState::{MainMenu, Spawn};
 use bevy::app::{App, Plugin, Update};
 use bevy::asset::AssetServer;
 use bevy::color::Color;
@@ -9,7 +10,7 @@ use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::Val::Percent;
 use bevy::prelude::{default, in_state, Camera, Camera2dBundle, ClearColorConfig, Commands, Component, Deref, DerefMut, Entity, IntoSystemConfigs, KeyCode, NextState, OnEnter, PositionType, Query, Res, ResMut, Resource, SpriteBundle, Style, TextBundle, TextStyle, Time, Timer, TimerMode, Transform, With};
-use crate::core::game_state::GameState;
+use vleue_kinetoscope::AnimatedImageBundle;
 
 pub(super) struct MainMenuScreenPlugin;
 
@@ -40,7 +41,10 @@ struct MainMenuScreenResources {
 #[derive(Resource, Deref, DerefMut)]
 struct MainMenuTimer(Timer);
 
-fn setup(mut commands: Commands) {
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
     commands.spawn((Camera2dBundle {
         camera: Camera {
             clear_color: ClearColorConfig::Custom(Color::BLACK),
@@ -50,6 +54,17 @@ fn setup(mut commands: Commands) {
     }, MainMenuScreen));
 
     commands.insert_resource(MainMenuScreenResources { enabled: true });
+
+    // TODO Figure out performance degradation over time
+    commands.spawn((AnimatedImageBundle {
+        animated_image: asset_server.load("cutscene/main_menu_animation.gif"),
+        transform: Transform {
+            translation: Vec3::new(get_relative_x(0.45), get_relative_y(0.60), 0.0),
+            scale: Vec3::splat(0.3), // Scale the sprite to its original size
+            ..Default::default()
+        },
+        ..Default::default()
+    }, MainMenuScreen,));
 }
 
 fn check_inputs(
@@ -59,7 +74,7 @@ fn check_inputs(
     mut toggle: ResMut<MainMenuScreenResources>,
     mut next_game_state: ResMut<NextState<GameState>>,
 ) {
-    if keys.pressed(KeyCode::Space) {
+    if keys.pressed(KeyCode::Enter) {
         despawn_screen(commands, query);
         toggle.enabled = false;
         next_game_state.set(Spawn(SpawnMapScene));
@@ -283,7 +298,7 @@ fn spawn_screen(
             Name::new("StartText"),
             MainMenuScreen,
             TextBundle::from_section(
-                "PRESS START",
+                "PRESS ENTER",
                 TextStyle {
                     font: asset_server.load(FONT),
                     font_size: 20.0,

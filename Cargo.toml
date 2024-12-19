@@ -11,10 +11,10 @@ opt-level = 1
 opt-level = 3
 
 [dependencies]
-bevy = "0.14.0"
+bevy = "0.14.2"
 rand = "0.8.5"
 #bevy-inspector-egui = "0.25.2"
-bevy_asset_preload = {git = "https://github.com/Warhorst/bevy_asset_preload"}
-bevy_sprite_sheet = {git = "https://github.com/Warhorst/bevy_sprite_sheet"}
-bevy_video = "0.9.1"
-pad = { git = "https://github.com/Warhorst/pad", features = ["bevy"] }
+bevy_asset_preload = {git = "https://github.com/Warhorst/bevy_asset_preload.git", rev = "b39d956"}
+bevy_sprite_sheet = {git = "https://github.com/Warhorst/bevy_sprite_sheet.git", rev = "0f36ca6"}
+vleue_kinetoscope = "=0.2.0"
+pad = { git = "https://github.com/Warhorst/pad.git", rev = "fe7e97a", features = ["bevy"] }

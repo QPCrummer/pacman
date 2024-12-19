@@ -1,15 +1,14 @@
 use bevy::prelude::*;
 use bevy_asset_preload::{AssetPreloadPlugin, load_assets};
 use bevy_sprite_sheet::SpriteSheetPlugin;
-
+use vleue_kinetoscope::AnimatedImagePlugin;
 use core::prelude::*;
 use crate::core::CorePlugin;
 use crate::game::GamePlugin;
-
 use crate::map_creator::create_map;
 use crate::spawn::SpawnPlugin;
 
-mod game;
+pub mod game;
 mod map_creator;
 mod spawn;
 mod core;
@@ -29,6 +28,7 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest())
         )
+        .add_plugins(AnimatedImagePlugin)
         .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
         .add_plugins((
             CorePlugin,

@@ -42,7 +42,7 @@ pub mod sound_effect;
 pub mod music;
 pub mod camera;
 mod restart_game;
-mod ui;
+pub mod ui;
 
 /// Contains the entire gameplay logic for pacman.
 pub struct GamePlugin;
