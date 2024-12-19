@@ -9,7 +9,7 @@ impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(Score(0))
-            .insert_resource(HighScore::new(10000))
+            .insert_resource(HighScore::new())
             .insert_resource(EatenGhostCounter(0))
             .add_systems(
                 Update,

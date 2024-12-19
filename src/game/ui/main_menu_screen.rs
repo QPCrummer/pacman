@@ -328,12 +328,12 @@ fn spawn_screen(
 }
 
 const HALF_HEIGHT: f32 = WINDOW_HEIGHT / 2.0;
-fn get_relative_y(percent: f32) -> f32 {
+pub fn get_relative_y(percent: f32) -> f32 {
     HALF_HEIGHT - (WINDOW_HEIGHT * percent) - 8.0
 }
 
 const HALF_WIDTH: f32 = WINDOW_WIDTH / 2.0;
-fn get_relative_x(percent: f32) -> f32 {
+pub fn get_relative_x(percent: f32) -> f32 {
     -HALF_WIDTH + (WINDOW_WIDTH * percent) + 8.0
 }
 

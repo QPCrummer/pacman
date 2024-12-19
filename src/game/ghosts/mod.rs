@@ -43,6 +43,7 @@ impl Plugin for GhostPlugin {
             .add_systems(
                 OnEnter(Game(LevelTransition)),
                 despawn_ghosts,
+
             )
             .add_systems(
                 OnEnter(Game(GhostEatenPause)),

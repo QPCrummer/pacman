@@ -8,8 +8,10 @@ impl Plugin for GameOverScreenPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(
-                OnEnter(Game(GameOver)),
-                spawn_screens
+                OnEnter(Game(GameOver)), (
+                    spawn_screens,
+                    HighScoreSerializable::save,
+                )
             )
             .add_systems(
                 OnExit(Game(GameOver)),

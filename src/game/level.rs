@@ -8,8 +8,10 @@ impl Plugin for LevelPlugin {
         app
             .insert_resource(Level(1))
             .add_systems(
-                OnExit(Game(LevelTransition)),
+                OnExit(Game(LevelTransition)), (
+                HighScoreSerializable::save,
                 increase_level
+                )
             )
             .add_systems(
                 OnExit(Game(GameOver)),

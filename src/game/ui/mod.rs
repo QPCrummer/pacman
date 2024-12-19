@@ -9,7 +9,7 @@ mod top;
 mod bottom;
 mod game_over_screen;
 mod ready_screen;
-mod main_menu_screen;
+pub mod main_menu_screen;
 
 pub(super) struct UIPlugin;
 
