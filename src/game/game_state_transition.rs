@@ -1,9 +1,7 @@
-use bevy::prelude::*;
-use vleue_kinetoscope::AnimatedImageBundle;
 use crate::core::prelude::*;
 use crate::core::system_sets::UpdateGameState;
-use crate::game::music;
-use crate::game::ui::main_menu_screen;
+use bevy::prelude::*;
+use crate::game::ui::cutscene_screen::get_cutscene;
 
 pub(super) struct GameStateTransitionPlugin;
 
@@ -19,20 +17,13 @@ impl Plugin for GameStateTransitionPlugin {
                     update_state_timer
                 ),
             )
-            .insert_resource(CutscenePlaying(false))
         ;
     }
 }
 
 /// Tells when to switch to the next state in the state machine
 #[derive(Resource, Deref, DerefMut)]
-struct StateTimer(Timer);
-
-#[derive(Resource)]
-struct CutscenePlaying(bool);
-
-#[derive(Component)]
-pub struct Cutscene;
+pub(crate) struct StateTimer(Timer);
 
 /// Update the current game state based on multiple factors.
 ///
@@ -42,7 +33,6 @@ pub struct Cutscene;
 /// run when playing the actual game, like updating ui.
 fn update_state(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     current_state: Res<State<GameState>>,
     mut next_state: ResMut<NextState<GameState>>,
     lives: Res<Lives>,
@@ -52,55 +42,28 @@ fn update_state(
     ghost_eaten_events: EventReader<GhostWasEaten>,
     game_restartet_events: EventReader<GameWasRestarted>,
     level: Res<Level>,
-    mut cutscene_playing: ResMut<CutscenePlaying>,
 ) {
     match current_state.get() {
-        Game(Start) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 2.0, Game(Ready), &mut cutscene_playing),
-        Game(Ready) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 2.5, Game(Running), &mut cutscene_playing),
+        Game(Start) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 2.0, Game(Ready)),
+        Game(Ready) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 2.5, Game(Running)),
         Game(Running) => switch_states_based_on_events(&mut next_state, pacman_hit_events, edibles_eaten_events, ghost_eaten_events),
-        Game(PacmanHit) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.0, Game(PacmanDying), &mut cutscene_playing),
-        Game(PacmanDying) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.5, Game(PacmanDead), &mut cutscene_playing),
+        Game(PacmanHit) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.0, Game(PacmanDying)),
+        Game(PacmanDying) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.5, Game(PacmanDead)),
         Game(PacmanDead) => switch_to_ready_or_game_over(&mut commands, &state_timer, &lives, &mut next_state),
         Game(GameOver) => switch_to_start_after_game_over(&mut next_state, game_restartet_events),
         Game(LevelTransition) => {
-            // TODO Check if a cutscene should play
-            if !cutscene_playing.0 && should_play_cutscene(level.0 as i32) {
-                let cutscene = get_cutscene(level);
-
-                switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, get_cutscene_length(cutscene), Game(Ready), &mut cutscene_playing);
-                commands.spawn((AnimatedImageBundle {
-                    animated_image: asset_server.load(format!("cutscene/cutscene{}.gif", cutscene)),
-                    transform: Transform {
-                        translation: Vec3::new(main_menu_screen::get_relative_x(0.5), main_menu_screen::get_relative_y(0.45), 5.0),
-                        scale: Vec3::splat(0.5), // Scale the sprite to its original size
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                }, Cutscene));
-                cutscene_playing.0 = true;
-                music::play_cutscene_sound(commands, &asset_server, cutscene);
+            if should_play_cutscene(level.0 as i32) {
+                switch_to_cutscene(&mut next_state);
             } else {
-                switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 3.0, Game(Ready), &mut cutscene_playing);
+                switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 3.0, Game(Ready));
             }
         },
-        Game(GhostEatenPause) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.0, Game(Running), &mut cutscene_playing),
+        Game(Cutscene) => {
+            let cutscene = get_cutscene(level);
+            switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, get_cutscene_length(cutscene), Game(Ready));
+        }
+        Game(GhostEatenPause) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.0, Game(Running)),
         _ => {}
-    }
-}
-
-fn get_cutscene(level: Res<Level>) -> i8 {
-    match level.0 {
-        2 => 1,
-        5 => 2,
-        _ => 3,
-    }
-}
-
-fn get_cutscene_length(cutscene: i8) -> f32 {
-    match cutscene {
-        1 => 10.53,
-        2 => 8.3,
-        _ => 8.56, // Cutscene 3
     }
 }
 
@@ -119,12 +82,11 @@ fn should_play_cutscene(level: i32) -> bool {
     n > 0 && (n * n + 3 * n) / 2 == level
 }
 
-pub fn despawn_cutscene(
-    mut commands: Commands,
-    query: Query<Entity, With<Cutscene>>,
-) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
+fn get_cutscene_length(cutscene: i8) -> f32 {
+    match cutscene {
+        1 => 10.53,
+        2 => 8.3,
+        _ => 8.56, // Cutscene 3
     }
 }
 
@@ -134,16 +96,20 @@ fn switch_when_timer_finished(
     game_state: &mut NextState<GameState>,
     time: f32,
     new_state: GameState,
-    cutscene_playing: &mut ResMut<CutscenePlaying>,
 ) {
     match state_timer {
         Some(timer) => if timer.finished() {
             commands.remove_resource::<StateTimer>();
-            cutscene_playing.0 = false;
             game_state.set(new_state);
         },
         None => commands.insert_resource(StateTimer(Timer::from_seconds(time, TimerMode::Once)))
     }
+}
+
+fn switch_to_cutscene(
+    game_state: &mut NextState<GameState>,
+) {
+    game_state.set(Game(Cutscene));
 }
 
 fn switch_to_ready_or_game_over(

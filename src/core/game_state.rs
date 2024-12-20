@@ -67,6 +67,8 @@ pub enum Game {
     LevelTransition,
     /// A short phase after pacman ate a ghost. A score gets displayed and only already eaten ghosts can move.
     GhostEatenPause,
+    /// The phase while a cutscene is playing
+    Cutscene,
 }
 
 /// A run condition which returns true if the current state is any variant of Game.

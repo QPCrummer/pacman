@@ -5,7 +5,6 @@ use crate::game::pacman::spawn::spawn_pacman;
 use crate::game::pacman::textures::{start_pacman_animation, update_pacman_appearance};
 
 use crate::core::prelude::*;
-use crate::game::game_state_transition;
 
 mod movement;
 mod spawn;
@@ -41,7 +40,6 @@ impl Plugin for PacmanPlugin {
             ))
             .add_systems(OnExit(Game(LevelTransition)), (
                          despawn_pacman,
-                         game_state_transition::despawn_cutscene, // TODO See if this is a valid placement
             ))
             .add_systems(OnEnter(Game(GhostEatenPause)), set_invisible)
             .add_systems(OnExit(Game(GhostEatenPause)), set_visible)

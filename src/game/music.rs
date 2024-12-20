@@ -49,7 +49,7 @@ fn play_start_sound(
 }
 
 pub fn play_cutscene_sound(
-    mut commands: Commands,
+    commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     cutscene: i8,
 ) {

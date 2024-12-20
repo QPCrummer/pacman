@@ -18,3 +18,4 @@ Cargo.lock
 #intellij
 .idea
 .qodo
+high_score.json

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use crate::game::ui::bottom::BottomUIPlugin;
+use crate::game::ui::cutscene_screen::CutsceneScreenPlugin;
 use crate::game::ui::game_over_screen::GameOverScreenPlugin;
 use crate::game::ui::main_menu_screen::MainMenuScreenPlugin;
 use crate::game::ui::ready_screen::ReadyScreenPlugin;
@@ -10,6 +11,7 @@ mod bottom;
 mod game_over_screen;
 mod ready_screen;
 pub mod main_menu_screen;
+pub mod cutscene_screen;
 
 pub(super) struct UIPlugin;
 
@@ -21,7 +23,8 @@ impl Plugin for UIPlugin {
                 BottomUIPlugin,
                 ReadyScreenPlugin,
                 MainMenuScreenPlugin,
-                GameOverScreenPlugin
+                GameOverScreenPlugin,
+                CutsceneScreenPlugin,
             ))
         ;
     }
