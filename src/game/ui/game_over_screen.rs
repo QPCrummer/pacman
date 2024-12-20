@@ -45,8 +45,8 @@ fn spawn_screens(
             },
         ).with_style(Style {
             position_type: PositionType::Absolute,
-            left: Percent(42.5),
-            top: Percent(55.0),
+            left: Percent(41.5),
+            top: Percent(53.0),
             ..default()
         }),
     ));
@@ -63,7 +63,7 @@ fn spawn_screens(
             },
         ).with_style(Style {
             position_type: PositionType::Absolute,
-            left: Percent(37.5),
+            left: Percent(33.0),
             top: Percent(96.0),
             ..default()
         }),

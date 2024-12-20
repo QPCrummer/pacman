@@ -21,6 +21,10 @@ fn main() {
                 primary_window: Some(Window {
                     resolution: (WINDOW_WIDTH, WINDOW_HEIGHT).into(),
                     title: "PacMan".to_string(),
+                    enabled_buttons: bevy::window::EnabledButtons {
+                        maximize: false,
+                        ..Default::default()
+                    },
                     resizable: false,
                     ..Default::default()
                 }),

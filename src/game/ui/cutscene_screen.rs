@@ -38,7 +38,7 @@ fn spawn_screens(
         AnimatedImageBundle {
             animated_image: asset_server.load(format!("cutscene/cutscene{}.gif", cutscene)),
             transform: Transform {
-                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.15), 100.0),
+                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.01), 100.0),
                 scale: Vec3::splat(0.5),
                 ..Default::default()
             },
@@ -56,7 +56,7 @@ fn spawn_screens(
                 ..Default::default()
             },
             transform: Transform {
-                translation: Vec3::new(WINDOW_WIDTH / 2., WINDOW_HEIGHT / 2., 99.0),
+                translation: Vec3::new(WINDOW_WIDTH / 2. - 50.0, WINDOW_HEIGHT / 2. - 50.0, 99.0),
                 ..Default::default()
             },
             ..Default::default()
@@ -68,9 +68,9 @@ fn spawn_screens(
 
 pub fn get_cutscene(level: Res<Level>) -> i8 {
     match level.0 {
-        2 => 1,
-        5 => 2,
-        _ => 3,
+        3 => 1, // Level 2
+        6 => 2, // Level 5
+        _ => 3, // Level 9+
     }
 }
 
