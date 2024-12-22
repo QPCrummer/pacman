@@ -30,6 +30,10 @@ pub struct FrightenedBackground;
 #[derive(Component, Reflect)]
 pub struct EatenBackground;
 
+/// Music that plays on the Main Menu
+#[derive(Component, Reflect)]
+pub struct Theme;
+
 /// Controller for the music that will play in the background
 #[derive(Resource, Reflect)]
 pub struct BackgroundMusic {
@@ -47,7 +51,6 @@ impl BackgroundMusic {
 }
 
 /// Identifiers for the current track that should be played
-/// TODO Add main menu music
 #[derive(Reflect)]
 pub enum CurrentTrack {
     /// The siren sound, when the remaining dots are between 100% and 75%

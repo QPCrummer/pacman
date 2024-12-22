@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_preload::{AssetPreloadPlugin, load_assets};
 use bevy_sprite_sheet::SpriteSheetPlugin;
+use bevy_window_icon::WindowIconPlugin;
 use vleue_kinetoscope::AnimatedImagePlugin;
 use core::prelude::*;
 use crate::core::CorePlugin;
@@ -16,7 +17,7 @@ mod core;
 fn main() {
     let mut app = App::new();
     app
-        .add_plugins(DefaultPlugins
+        .add_plugins((DefaultPlugins
             .set(WindowPlugin {
                 primary_window: Some(Window {
                     resolution: (WINDOW_WIDTH, WINDOW_HEIGHT).into(),
@@ -31,7 +32,8 @@ fn main() {
                 ..default()
             })
             .set(ImagePlugin::default_nearest())
-        )
+                      , WindowIconPlugin::new("./assets/icon.png")
+        ))
         .add_plugins(AnimatedImagePlugin)
         .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
         .add_plugins((

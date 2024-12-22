@@ -1,3 +1,4 @@
+use std::time::Duration;
 use crate::core::constants::FONT;
 use crate::core::game_state::GameState;
 use crate::core::prelude::{SpawnMapScene, WINDOW_HEIGHT, WINDOW_WIDTH};
@@ -10,7 +11,9 @@ use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::Val::Percent;
 use bevy::prelude::{default, in_state, Camera, Camera2dBundle, ClearColorConfig, Commands, Component, Deref, DerefMut, Entity, IntoSystemConfigs, KeyCode, NextState, OnEnter, PositionType, Query, Res, ResMut, Resource, SpriteBundle, Style, TextBundle, TextStyle, Time, Timer, TimerMode, Transform, With};
+use rand::random;
 use vleue_kinetoscope::AnimatedImageBundle;
+use crate::game::music;
 
 pub(super) struct MainMenuScreenPlugin;
 
@@ -23,7 +26,7 @@ impl Plugin for MainMenuScreenPlugin {
             )
             .add_systems(
                 Update,
-                (check_inputs, spawn_screen).run_if(in_state(MainMenu))
+                (check_inputs, spawn_screen, get_next_theme).run_if(in_state(MainMenu))
             )
             .insert_resource(MainMenuTimer(Timer::from_seconds(8.0, TimerMode::Once)))
         ;
@@ -41,6 +44,9 @@ struct MainMenuScreenResources {
 
 #[derive(Resource, Deref, DerefMut)]
 struct MainMenuTimer(Timer);
+
+#[derive(Resource, Deref, DerefMut)]
+struct ThemeTimer(Timer);
 
 fn setup(
     mut commands: Commands,
@@ -283,7 +289,7 @@ fn spawn_screen(
         commands.spawn((SpriteBundle {
             texture: asset_server.load("textures/energizer.png"),
             transform: Transform {
-                translation: Vec3::new(get_relative_x(0.40), get_relative_y(0.80), 0.0),
+                translation: Vec3::new(get_relative_x(0.40), get_relative_y(0.80), 1.0),
                 scale: Vec3::splat(2.0), // Doubling the size
                 ..Default::default()
             },
@@ -324,6 +330,38 @@ fn spawn_screen(
             },
             ..Default::default()
         }, MainMenuScreen,));
+
+        // Start music
+        let theme = (random::<u8>() % 3 + 1) as i8;
+        let duration = get_theme_duration(theme);
+        music::play_theme_sound(&mut commands, &asset_server, theme, duration);
+        commands.insert_resource(ThemeTimer(Timer::from_seconds(duration as f32, TimerMode::Once)));
+    }
+}
+
+fn get_theme_duration(theme: i8) -> u64 {
+    match theme {
+        1 => 130,
+        2 => 151,
+        _ => 251,
+    }
+}
+
+fn get_next_theme(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    theme_timer: Option<ResMut<ThemeTimer>>,
+    time: Res<Time>,
+) {
+    if let Some(mut timer) = theme_timer {
+        timer.tick(time.delta());
+        if timer.0.finished() {
+            let theme = (random::<u8>() % 3 + 1) as i8;
+            let duration = get_theme_duration(theme);
+            music::play_theme_sound(&mut commands, &asset_server, theme, duration);
+            timer.0.set_duration(Duration::from_secs(duration));
+            timer.0.reset();
+        }
     }
 }
 

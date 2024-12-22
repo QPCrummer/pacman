@@ -30,6 +30,10 @@ impl Plugin for MusicPlugin {
                 OnExit(Game(GameOver)),
                 despawn_tracks
             )
+            .add_systems(
+                OnExit(MainMenu),
+                despawn_themes
+            )
         ;
     }
 }
@@ -58,6 +62,23 @@ pub fn play_cutscene_sound(
         SoundEffect::new(11),
         AudioBundle {
             source: asset_server.load(format!("sounds/cutscene{}.ogg", cutscene)),
+            ..default()
+        }
+    ));
+}
+
+pub fn play_theme_sound(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    theme: i8,
+    duration: u64,
+) {
+    commands.spawn((
+        Name::new(format!("Theme{}", theme)),
+        SoundEffect::new(duration),
+        Theme,
+        AudioBundle {
+            source: asset_server.load(format!("sounds/theme{}.ogg", theme)),
             ..default()
         }
     ));
@@ -216,6 +237,15 @@ impl<'a> Mixer<'a> {
 fn despawn_tracks(
     mut commands: Commands,
     tracks: Query<Entity, With<BackgroundTrack>>
+) {
+    for entity in &tracks {
+        commands.entity(entity).despawn()
+    }
+}
+
+fn despawn_themes(
+    mut commands: Commands,
+    tracks: Query<Entity, With<Theme>>
 ) {
     for entity in &tracks {
         commands.entity(entity).despawn()

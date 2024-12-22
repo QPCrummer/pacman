@@ -38,7 +38,7 @@ fn spawn_screens(
         AnimatedImageBundle {
             animated_image: asset_server.load(format!("cutscene/cutscene{}.gif", cutscene)),
             transform: Transform {
-                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.01), 100.0),
+                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.01), 200.0),
                 scale: Vec3::splat(0.5),
                 ..Default::default()
             },
@@ -52,11 +52,11 @@ fn spawn_screens(
         SpriteBundle {
             sprite: Sprite {
                 color: Color::BLACK,
-                custom_size: Some(Vec2::new(WINDOW_WIDTH, WINDOW_HEIGHT)), // Adjust size as needed
+                custom_size: Some(Vec2::new(WINDOW_WIDTH * 2., WINDOW_HEIGHT * 2.)),
                 ..Default::default()
             },
             transform: Transform {
-                translation: Vec3::new(WINDOW_WIDTH / 2. - 50.0, WINDOW_HEIGHT / 2. - 50.0, 99.0),
+                translation: Vec3::new(WINDOW_WIDTH - 50.0, WINDOW_HEIGHT - 50.0, 199.0),
                 ..Default::default()
             },
             ..Default::default()
