@@ -1,7 +1,8 @@
+use crate::core::prelude::*;
 use bevy::audio::{AudioSink, Volume};
 use bevy::prelude::*;
-use crate::core::prelude::*;
 use CurrentTrack::*;
+use crate::game::ui::settings_screen::Config;
 
 pub struct MusicPlugin;
 
@@ -12,7 +13,8 @@ impl Plugin for MusicPlugin {
             .add_systems(
                 OnEnter(Game(Start)), (
                     play_start_sound,
-                    init_background_music
+                    init_background_music,
+                    despawn_themes
                 ))
             .add_systems(
                 OnEnter(Game(Running)),
@@ -30,10 +32,6 @@ impl Plugin for MusicPlugin {
                 OnExit(Game(GameOver)),
                 despawn_tracks
             )
-            .add_systems(
-                OnExit(MainMenu),
-                despawn_themes
-            )
         ;
     }
 }
@@ -41,57 +39,67 @@ impl Plugin for MusicPlugin {
 fn play_start_sound(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    config: Res<Config>,
 ) {
-    commands.spawn((
-        Name::new("StartSound"),
-        SoundEffect::new(5),
-        AudioBundle {
-            source: asset_server.load("sounds/start.ogg"),
-            ..default()
-        }
-    ));
+    if config.game_sounds {
+        commands.spawn((
+            Name::new("StartSound"),
+            SoundEffect::new(5),
+            AudioBundle {
+                source: asset_server.load("sounds/start.ogg"),
+                ..default()
+            }
+        ));
+    }
 }
 
 pub fn play_cutscene_sound(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     cutscene: i8,
+    config: Res<Config>,
 ) {
-    commands.spawn((
-        Name::new(format!("CutsceneSound{}", cutscene)),
-        SoundEffect::new(11),
-        AudioBundle {
-            source: asset_server.load(format!("sounds/cutscene{}.ogg", cutscene)),
-            ..default()
-        }
-    ));
+    if config.game_sounds {
+        commands.spawn((
+            Name::new(format!("CutsceneSound{}", cutscene)),
+            SoundEffect::new(11),
+            AudioBundle {
+                source: asset_server.load(format!("sounds/cutscene{}.ogg", cutscene)),
+                ..default()
+            }
+        ));
+    }
 }
 
 pub fn play_theme_sound(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
+    config: Res<Config>,
     theme: i8,
     duration: u64,
 ) {
-    commands.spawn((
-        Name::new(format!("Theme{}", theme)),
-        SoundEffect::new(duration),
-        Theme,
-        AudioBundle {
-            source: asset_server.load(format!("sounds/theme{}.ogg", theme)),
-            ..default()
-        }
-    ));
+    if config.background_music {
+        commands.spawn((
+            Name::new(format!("Theme{}", theme)),
+            SoundEffect::new(duration),
+            Theme,
+            AudioBundle {
+                source: asset_server.load(format!("sounds/theme{}.ogg", theme)),
+                ..default()
+            }
+        ));
+    }
 }
 
 /// Starts every background track at the same time with volume of 0.
 fn init_background_music(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    config: Res<Config>,
 ) {
-    start_background_track(&mut commands, &asset_server, SirenBackground, "sounds/siren.ogg");
-    start_background_track(&mut commands, &asset_server, FrightenedBackground, "sounds/frightened.ogg");
-    start_background_track(&mut commands, &asset_server, EatenBackground, "sounds/eaten.ogg");
+    start_background_track(&mut commands, &asset_server, SirenBackground, "sounds/siren.ogg", &config);
+    start_background_track(&mut commands, &asset_server, FrightenedBackground, "sounds/frightened.ogg", &config);
+    start_background_track(&mut commands, &asset_server, EatenBackground, "sounds/eaten.ogg", &config);
 }
 
 fn start_background_track(
@@ -99,16 +107,19 @@ fn start_background_track(
     loaded_assets: &AssetServer,
     marker: impl Component,
     path: &'static str,
+    config: &Res<Config>,
 ) {
-    commands.spawn((
-        Name::new(path),
-        BackgroundTrack,
-        marker,
-        AudioBundle {
-            source: loaded_assets.load(path),
-            settings: PlaybackSettings::LOOP.with_volume(Volume::new(0.0)),
-        }
-    ));
+    if config.game_sounds {
+        commands.spawn((
+            Name::new(path),
+            BackgroundTrack,
+            marker,
+            AudioBundle {
+                source: loaded_assets.load(path),
+                settings: PlaybackSettings::LOOP.with_volume(Volume::new(0.0)),
+            }
+        ));
+    }
 }
 
 /// Unmute the background music.
@@ -152,32 +163,35 @@ fn play_track(
     siren_tracks: Query<&AudioSink, With<SirenBackground>>,
     frightened_tracks: Query<&AudioSink, With<FrightenedBackground>>,
     eaten_tracks: Query<&AudioSink, With<EatenBackground>>,
+    config: Res<Config>,
 ) {
-    if !background_music.is_changed() {
-        return;
-    }
+    if config.game_sounds {
+        if !background_music.is_changed() {
+            return;
+        }
 
-    let mixer = match (
-        siren_tracks.get_single(),
-        frightened_tracks.get_single(),
-        eaten_tracks.get_single()
-    ) {
-        (Ok(siren), Ok(frightened), Ok(eaten)) => Mixer::new(siren, frightened, eaten),
-        _ => return
-    };
+        let mixer = match (
+            siren_tracks.get_single(),
+            frightened_tracks.get_single(),
+            eaten_tracks.get_single()
+        ) {
+            (Ok(siren), Ok(frightened), Ok(eaten)) => Mixer::new(siren, frightened, eaten),
+            _ => return
+        };
 
-    if background_music.muted {
-        mixer.mute_all();
-        return;
-    }
+        if background_music.muted {
+            mixer.mute_all();
+            return;
+        }
 
-    match &background_music.current_track {
-        Siren1 => mixer.play_siren_1(),
-        Siren2 => mixer.play_siren_2(),
-        Siren3 => mixer.play_siren_3(),
-        Siren4 => mixer.play_siren_4(),
-        FrightenedTrack => mixer.play_frightened(),
-        EatenTrack => mixer.play_eaten(),
+        match &background_music.current_track {
+            Siren1 => mixer.play_siren_1(),
+            Siren2 => mixer.play_siren_2(),
+            Siren3 => mixer.play_siren_3(),
+            Siren4 => mixer.play_siren_4(),
+            FrightenedTrack => mixer.play_frightened(),
+            EatenTrack => mixer.play_eaten(),
+        }
     }
 }
 

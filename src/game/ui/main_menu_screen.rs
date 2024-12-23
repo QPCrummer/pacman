@@ -1,7 +1,8 @@
-use std::time::Duration;
 use crate::core::constants::FONT;
 use crate::core::game_state::GameState;
-use crate::core::prelude::{SpawnMapScene, WINDOW_HEIGHT, WINDOW_WIDTH};
+use crate::core::game_state::MainMenu::{Menu, Settings};
+use crate::core::prelude::{CreateSpriteSheets, SpawnMapScene, WINDOW_HEIGHT, WINDOW_WIDTH};
+use crate::game::music;
 use crate::GameState::{MainMenu, Spawn};
 use bevy::app::{App, Plugin, Update};
 use bevy::asset::AssetServer;
@@ -10,10 +11,11 @@ use bevy::core::Name;
 use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::Val::Percent;
-use bevy::prelude::{default, in_state, Camera, Camera2dBundle, ClearColorConfig, Commands, Component, Deref, DerefMut, Entity, IntoSystemConfigs, KeyCode, NextState, OnEnter, PositionType, Query, Res, ResMut, Resource, SpriteBundle, Style, TextBundle, TextStyle, Time, Timer, TimerMode, Transform, With};
+use bevy::prelude::{default, in_state, Camera, Camera2dBundle, ClearColorConfig, Commands, Component, Condition, Deref, DerefMut, Entity, IntoSystemConfigs, KeyCode, NextState, OnExit, PositionType, Query, Res, ResMut, Resource, SpriteBundle, Style, TextBundle, TextStyle, Time, Timer, TimerMode, Transform, With};
 use rand::random;
+use std::time::Duration;
 use vleue_kinetoscope::AnimatedImageBundle;
-use crate::game::music;
+use crate::game::ui::settings_screen::Config;
 
 pub(super) struct MainMenuScreenPlugin;
 
@@ -21,20 +23,26 @@ impl Plugin for MainMenuScreenPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(
-                OnEnter(MainMenu),
+                OnExit(GameState::Setup(CreateSpriteSheets)),
                 setup
             )
             .add_systems(
                 Update,
-                (check_inputs, spawn_screen, get_next_theme).run_if(in_state(MainMenu))
+                (check_inputs, spawn_screen).run_if(in_state(MainMenu(Menu)))
+            )
+            .add_systems(
+                Update,
+                (get_next_theme, tick_button_pressed_timer).run_if(in_state(MainMenu(Menu)).or_else(in_state(MainMenu(Settings))))
             )
             .insert_resource(MainMenuTimer(Timer::from_seconds(8.0, TimerMode::Once)))
+            .insert_resource(ButtonTimer(Timer::from_seconds(0.5, TimerMode::Once)))
+            .insert_resource(ButtonCanPress(true))
         ;
     }
 }
 
 #[derive(Component)]
-struct MainMenuScreen;
+pub(crate) struct MainMenuScreen;
 
 #[derive(Resource)]
 struct MainMenuScreenResources {
@@ -47,6 +55,12 @@ struct MainMenuTimer(Timer);
 
 #[derive(Resource, Deref, DerefMut)]
 struct ThemeTimer(Timer);
+
+#[derive(Resource, Deref, DerefMut)]
+struct ButtonTimer(Timer);
+
+#[derive(Resource, Deref, DerefMut)]
+pub(crate) struct ButtonCanPress(pub(crate) bool);
 
 fn setup(
     mut commands: Commands,
@@ -71,11 +85,21 @@ fn check_inputs(
     keys: Res<ButtonInput<KeyCode>>,
     mut toggle: ResMut<MainMenuScreenResources>,
     mut next_game_state: ResMut<NextState<GameState>>,
+    mut enable_buttons: ResMut<ButtonCanPress>,
 ) {
-    if keys.pressed(KeyCode::Enter) {
-        despawn_screen(commands, query);
-        toggle.enabled = false;
-        next_game_state.set(Spawn(SpawnMapScene));
+    if enable_buttons.0 {
+        // Start game
+        if keys.pressed(KeyCode::Enter) {
+            despawn_screen(commands, query);
+            toggle.enabled = false;
+            next_game_state.set(Spawn(SpawnMapScene));
+        }
+
+        // Open settings
+        if keys.pressed(KeyCode::Escape) {
+            enable_buttons.0 = false;
+            next_game_state.set(MainMenu(Settings));
+        }
     }
 }
 
@@ -85,6 +109,7 @@ fn spawn_screen(
     mut toggle: ResMut<MainMenuScreenResources>,
     mut timer: ResMut<MainMenuTimer>,
     time: Res<Time>,
+    config: Res<Config>,
 ) {
     if !toggle.enabled {
         return;
@@ -307,7 +332,7 @@ fn spawn_screen(
             Name::new("StartText"),
             MainMenuScreen,
             TextBundle::from_section(
-                "PRESS ENTER",
+                "PRESS ENTER TO PLAY",
                 TextStyle {
                     font: asset_server.load(FONT),
                     font_size: 20.0,
@@ -315,8 +340,26 @@ fn spawn_screen(
                 },
             ).with_style(Style {
                 position_type: PositionType::Absolute,
-                left: Percent(40.0),
+                left: Percent(30.0),
                 top: Percent(90.0),
+                ..default()
+            }),
+        ));
+
+        commands.spawn((
+            Name::new("ConfigText"),
+            MainMenuScreen,
+            TextBundle::from_section(
+                "PRESS ESCAPE TO CONFIGURE",
+                TextStyle {
+                    font: asset_server.load(FONT),
+                    font_size: 10.0,
+                    color: Color::srgb(1.0, 1.0, 1.0),
+                },
+            ).with_style(Style {
+                position_type: PositionType::Absolute,
+                left: Percent(35.0),
+                top: Percent(95.0),
                 ..default()
             }),
         ));
@@ -334,7 +377,7 @@ fn spawn_screen(
         // Start music
         let theme = (random::<u8>() % 3 + 1) as i8;
         let duration = get_theme_duration(theme);
-        music::play_theme_sound(&mut commands, &asset_server, theme, duration);
+        music::play_theme_sound(&mut commands, &asset_server, config, theme, duration);
         commands.insert_resource(ThemeTimer(Timer::from_seconds(duration as f32, TimerMode::Once)));
     }
 }
@@ -352,15 +395,34 @@ fn get_next_theme(
     asset_server: Res<AssetServer>,
     theme_timer: Option<ResMut<ThemeTimer>>,
     time: Res<Time>,
+    config: Res<Config>,
 ) {
     if let Some(mut timer) = theme_timer {
         timer.tick(time.delta());
         if timer.0.finished() {
             let theme = (random::<u8>() % 3 + 1) as i8;
             let duration = get_theme_duration(theme);
-            music::play_theme_sound(&mut commands, &asset_server, theme, duration);
+            music::play_theme_sound(&mut commands, &asset_server, config, theme, duration);
             timer.0.set_duration(Duration::from_secs(duration));
             timer.0.reset();
+        }
+    }
+}
+
+fn tick_button_pressed_timer(
+    timer_pre: Option<ResMut<ButtonTimer>>,
+    time: Res<Time>,
+    enable_buttons: Option<ResMut<ButtonCanPress>>,
+) {
+    if let Some(mut timer) = timer_pre {
+        if let Some(mut buttons) = enable_buttons {
+            if !buttons.0 {
+                timer.0.tick(time.delta());
+                if timer.0.finished() {
+                    buttons.0 = true;
+                    timer.0.reset();
+                }
+            }
         }
     }
 }

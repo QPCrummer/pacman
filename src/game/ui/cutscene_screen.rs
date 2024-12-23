@@ -3,6 +3,7 @@ use crate::game::music;
 use crate::game::ui::main_menu_screen;
 use bevy::prelude::*;
 use vleue_kinetoscope::AnimatedImageBundle;
+use crate::game::ui::settings_screen::Config;
 
 pub(super) struct CutsceneScreenPlugin;
 
@@ -30,6 +31,7 @@ fn spawn_screens(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     level: Res<Level>,
+    config: Res<Config>,
 ) {
     let cutscene = get_cutscene(level);
     commands.spawn((
@@ -38,7 +40,7 @@ fn spawn_screens(
         AnimatedImageBundle {
             animated_image: asset_server.load(format!("cutscene/cutscene{}.gif", cutscene)),
             transform: Transform {
-                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.01), 200.0),
+                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.01), 301.0), // Slightly above tunnel rendering
                 scale: Vec3::splat(0.5),
                 ..Default::default()
             },
@@ -63,7 +65,7 @@ fn spawn_screens(
         },
     ));
 
-    music::play_cutscene_sound(&mut commands, &asset_server, cutscene);
+    music::play_cutscene_sound(&mut commands, &asset_server, cutscene, config);
 }
 
 pub fn get_cutscene(level: Res<Level>) -> i8 {

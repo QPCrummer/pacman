@@ -2,6 +2,7 @@ use bevy::ecs::query::QueryData;
 use bevy::prelude::*;
 
 use crate::core::prelude::*;
+use crate::game::ui::settings_screen::Config;
 
 pub(in crate::game) struct SpeedPlugin;
 
@@ -34,11 +35,12 @@ fn update_ghost_speed(
     specs_per_level: Res<SpecsPerLevel>,
     mut ghost_query: Query<GhostSpeedUpdateComponents>,
     tunnel_query: Query<&Transform, Or<(With<Tunnel>, With<TunnelHallway>)>>,
+    config: Res<Config>,
 ) {
     for mut comps in ghost_query.iter_mut() {
         match *comps.ghost {
-            Blinky => update_blinky_speed(&level, &specs_per_level, &eaten_dots, &mut comps, &tunnel_query),
-            _ => update_non_blinky_speed(&level, &specs_per_level, &mut comps, &tunnel_query)
+            Blinky => update_blinky_speed(&level, &specs_per_level, &eaten_dots, &mut comps, &tunnel_query, &config),
+            _ => update_non_blinky_speed(&level, &specs_per_level, &mut comps, &tunnel_query, &config)
         }
     }
 }
@@ -52,6 +54,7 @@ fn update_blinky_speed(
     eaten_dots: &EatenDots,
     comps: &mut GhostSpeedUpdateComponentsItem,
     tunnel_query: &Query<&Transform, Or<(With<Tunnel>, With<TunnelHallway>)>>,
+    config: &Res<Config>,
 ) {
     let spec = specs_per_level.get_for(&level);
     let remaining_dots = eaten_dots.get_remaining();
@@ -59,15 +62,15 @@ fn update_blinky_speed(
     if *comps.state == Eaten {
         *comps.speed = Speed(GHOST_BASE_SPEED * 2.0)
     } else if is_in_tunnel(&comps.transform, tunnel_query) {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_tunnel_speed_modifier);
+        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_tunnel_speed_modifier * config.ghost_tunnel_speed_modifier); // Additionally modifier from config
     } else if *comps.state == Frightened {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_frightened_speed_modifier)
+        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_frightened_speed_modifier * config.frightened_ghost_speed_modifier); // Additionally modifier from config
     } else if remaining_dots <= spec.elroy_2_dots_left {
         *comps.speed = Speed(GHOST_BASE_SPEED * spec.elroy_2_speed_modifier)
     } else if remaining_dots <= spec.elroy_1_dots_left {
         *comps.speed = Speed(GHOST_BASE_SPEED * spec.elroy_1_speed_modifier)
     } else {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier)
+        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier * config.ghost_speed_modifier);  // Additionally modifier from config
     }
 }
 
@@ -76,17 +79,18 @@ fn update_non_blinky_speed(
     specs_per_level: &SpecsPerLevel,
     comps: &mut GhostSpeedUpdateComponentsItem,
     tunnel_query: &Query<&Transform, Or<(With<Tunnel>, With<TunnelHallway>)>>,
+    config: &Res<Config>,
 ) {
     let spec = specs_per_level.get_for(&level);
 
     if *comps.state == Eaten {
         *comps.speed = Speed(GHOST_BASE_SPEED * 2.0)
     } else if is_in_tunnel(&comps.transform, tunnel_query) {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_tunnel_speed_modifier);
+        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_tunnel_speed_modifier * config.ghost_tunnel_speed_modifier);  // Additionally modifier from config
     } else if *comps.state == Frightened {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_frightened_speed_modifier)
+        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_frightened_speed_modifier * config.frightened_ghost_speed_modifier); // Additionally modifier from config
     } else {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier)
+        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier * config.ghost_speed_modifier); // Additionally modifier from config
     }
 }
 
@@ -108,14 +112,15 @@ fn update_pacman_speed(
     specs_per_level: Res<SpecsPerLevel>,
     energizer_timer: Option<Res<EnergizerTimer>>,
     mut query: Query<&mut Speed, With<Pacman>>,
+    config: Res<Config>,
 ) {
     for mut speed in query.iter_mut() {
         let spec = specs_per_level.get_for(&level);
 
         if energizer_timer.is_some() {
-            *speed = Speed(PACMAN_BASE_SPEED * spec.pacman_frightened_speed_modifier);
+            *speed = Speed(PACMAN_BASE_SPEED * spec.pacman_frightened_speed_modifier * config.pacman_speed_modifier); // Additional modifier from config
         } else {
-            *speed = Speed(PACMAN_BASE_SPEED * spec.pacman_normal_speed_modifier);
+            *speed = Speed(PACMAN_BASE_SPEED * spec.pacman_normal_speed_modifier * config.pacman_speed_modifier); // Additional modifier from config
         }
     }
 }

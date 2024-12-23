@@ -5,7 +5,9 @@ use bevy_window_icon::WindowIconPlugin;
 use vleue_kinetoscope::AnimatedImagePlugin;
 use core::prelude::*;
 use crate::core::CorePlugin;
+use crate::core::game_state::MainMenu::Menu;
 use crate::game::GamePlugin;
+use crate::game::ui::settings_screen::Config;
 use crate::map_creator::create_map;
 use crate::spawn::SpawnPlugin;
 
@@ -34,6 +36,7 @@ fn main() {
             .set(ImagePlugin::default_nearest())
                       , WindowIconPlugin::new("./assets/icon.png")
         ))
+        .insert_resource(Config::load().unwrap())
         .add_plugins(AnimatedImagePlugin)
         .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
         .add_plugins((
@@ -41,7 +44,7 @@ fn main() {
             GamePlugin,
             SpawnPlugin,
             AssetPreloadPlugin::load_given_paths(Setup(PreloadAssets), Setup(CreateSpriteSheets), load_assets!()),
-            SpriteSheetPlugin::new(Setup(CreateSpriteSheets), MainMenu),
+            SpriteSheetPlugin::new(Setup(CreateSpriteSheets), MainMenu(Menu)),
         ))
     ;
 

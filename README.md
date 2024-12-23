@@ -8,14 +8,13 @@ Despite its age and appearance, Pacman was a quite complex game. Therefore, this
 (Use WASD or arrow keys to control pacman. Click into the canvas if it's not working)
 
 ## About this fork
-This fork adds cutscenes, music, and other small features to make the game more feature-complete.
+This fork adds cutscenes, music, and other small features to make the game more feature-complete. Additionally many values are now customizable in the config.
 
 ## State of the game
-The game is on version 1.0.0. As I implemented every feature listed in the pacman dossier (as far as I can tell), I consider the game feature complete.
+The game is on version 1.0.0. Every feature listed in the pacman dossier; The game is considered feature-complete.
 
 There are still other things one can do, like:
 - bugs from the original game, like the "death screen"
-- customizations such as changing starting lives, ghost speeds, point values, etc.
 
 The game was also designed (and therefore overengineered) with a map editor in mind (or at least custom maps). Maybe this will come to fruition one day.
 

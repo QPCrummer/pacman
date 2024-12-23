@@ -1,5 +1,7 @@
 use bevy::prelude::*;
+use crate::core::game_state::MainMenu::Menu;
 use crate::core::prelude::*;
+use crate::game::ui::settings_screen::Config;
 
 pub(in crate::game) struct LevelPlugin;
 
@@ -17,6 +19,10 @@ impl Plugin for LevelPlugin {
                 OnExit(Game(GameOver)),
                 reset_level
             )
+            .add_systems(
+                OnEnter(MainMenu(Menu)),
+                reset_level
+            )
         ;
     }
 }
@@ -28,7 +34,9 @@ fn increase_level(
 }
 
 fn reset_level(
-    mut level: ResMut<Level>
+    mut level: ResMut<Level>,
+    config: Res<Config>,
 ) {
-    level.0 = 1;
+    // Set from config
+    level.0 = config.starting_level as usize;
 }

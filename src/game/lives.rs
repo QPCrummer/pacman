@@ -1,5 +1,7 @@
 use bevy::prelude::*;
+use crate::core::game_state::MainMenu::Menu;
 use crate::core::prelude::*;
+use crate::game::ui::settings_screen::Config;
 
 pub(super) struct LivesPlugin;
 
@@ -17,6 +19,10 @@ impl Plugin for LivesPlugin {
                     .run_if(in_state(Game(Running))))
             .add_systems(
                 OnExit(Game(GameOver)),
+                reset_lives,
+            )
+            .add_systems(
+                OnEnter(MainMenu(Menu)),
                 reset_lives,
             )
         ;
@@ -44,8 +50,9 @@ fn add_life_if_player_reaches_specific_score(
 }
 
 fn reset_lives(
-    mut lives: ResMut<Lives>
+    mut lives: ResMut<Lives>,
+    config: Res<Config>,
 ) {
-    lives.0 = 3;
+    lives.0 = config.starting_lives as usize;
 }
 
