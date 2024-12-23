@@ -61,7 +61,7 @@ impl HighScoreSerializable {
             .write(true)
             .create(true)
             .truncate(true) // TODO Only overwrite the current user's data
-            .open(&path)
+            .open(path)
             .expect("Failed to create or open the high score file");
 
         // Write the JSON string to the file
@@ -74,7 +74,7 @@ impl HighScoreSerializable {
         let path = Path::new(HIGH_SCORE_PATH);
 
         let file = if !path.exists() {
-            File::create(&path).unwrap()
+            File::create(path).unwrap()
         } else {
             File::open(path).unwrap()
         };

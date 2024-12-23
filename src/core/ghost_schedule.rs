@@ -98,8 +98,7 @@ impl GhostSchedule {
 
         GhostSchedule {
             current_phase_index: 0,
-            current_phase_timer: phases
-                .get(0)
+            current_phase_timer: phases.first()
                 .expect("at least one phase must be provided")
                 .phase_timer(),
             phases,

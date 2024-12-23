@@ -64,12 +64,12 @@ fn update_blinky_speed(
     tunnel_query: &Query<&Transform, Or<(With<Tunnel>, With<TunnelHallway>)>>,
     config: &Res<Config>,
 ) {
-    let spec = specs_per_level.get_for(&level);
+    let spec = specs_per_level.get_for(level);
     let remaining_dots = eaten_dots.get_remaining();
 
     if *comps.state == Eaten {
         *comps.speed = Speed(GHOST_BASE_SPEED * 2.0)
-    } else if is_in_tunnel(&comps.transform, tunnel_query) {
+    } else if is_in_tunnel(comps.transform, tunnel_query) {
         *comps.speed = Speed(
             GHOST_BASE_SPEED
                 * spec.ghost_tunnel_speed_modifier
@@ -99,11 +99,11 @@ fn update_non_blinky_speed(
     tunnel_query: &Query<&Transform, Or<(With<Tunnel>, With<TunnelHallway>)>>,
     config: &Res<Config>,
 ) {
-    let spec = specs_per_level.get_for(&level);
+    let spec = specs_per_level.get_for(level);
 
     if *comps.state == Eaten {
         *comps.speed = Speed(GHOST_BASE_SPEED * 2.0)
-    } else if is_in_tunnel(&comps.transform, tunnel_query) {
+    } else if is_in_tunnel(comps.transform, tunnel_query) {
         *comps.speed = Speed(
             GHOST_BASE_SPEED
                 * spec.ghost_tunnel_speed_modifier

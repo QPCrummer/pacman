@@ -100,7 +100,7 @@ impl FruitDespawnTimer {
 }
 
 pub fn get_texture_for_fruit(fruit: &Fruit, asset_server: &AssetServer) -> Handle<Image> {
-    asset_server.load(&format!(
+    asset_server.load(format!(
         "textures/fruits/{}.png",
         match fruit {
             Cherry => "cherry",

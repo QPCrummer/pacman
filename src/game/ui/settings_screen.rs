@@ -541,14 +541,12 @@ fn check_inputs(
                 // Decrement value
                 change_config_value(query1, value_query, config, false);
             }
-        } else {
-            if keys.pressed(KeyCode::ArrowUp) {
-                enable_buttons.0 = false;
-                negative_iterator_cursor(query1);
-            } else if keys.pressed(KeyCode::ArrowDown) {
-                enable_buttons.0 = false;
-                positive_iterator_cursor(query1);
-            }
+        } else if keys.pressed(KeyCode::ArrowUp) {
+            enable_buttons.0 = false;
+            negative_iterator_cursor(query1);
+        } else if keys.pressed(KeyCode::ArrowDown) {
+            enable_buttons.0 = false;
+            positive_iterator_cursor(query1);
         }
     }
 }
@@ -679,10 +677,8 @@ fn change_config_value(
                         if config.pacman_speed_modifier < 10.0 {
                             config.pacman_speed_modifier += 0.01;
                         }
-                    } else {
-                        if config.pacman_speed_modifier > 0.01 {
-                            config.pacman_speed_modifier -= 0.01;
-                        }
+                    } else if config.pacman_speed_modifier > 0.01 {
+                        config.pacman_speed_modifier -= 0.01;
                     }
                     update_config_value_text(
                         &mut value_query,
@@ -695,10 +691,8 @@ fn change_config_value(
                         if config.ghost_speed_modifier < 10.0 {
                             config.ghost_speed_modifier += 0.01;
                         }
-                    } else {
-                        if config.ghost_speed_modifier > 0.01 {
-                            config.ghost_speed_modifier -= 0.01;
-                        }
+                    } else if config.ghost_speed_modifier > 0.01 {
+                        config.ghost_speed_modifier -= 0.01;
                     }
                     update_config_value_text(
                         &mut value_query,
@@ -711,10 +705,8 @@ fn change_config_value(
                         if config.ghost_tunnel_speed_modifier < 10.0 {
                             config.ghost_tunnel_speed_modifier += 0.01;
                         }
-                    } else {
-                        if config.ghost_tunnel_speed_modifier > 0.01 {
-                            config.ghost_tunnel_speed_modifier -= 0.01;
-                        }
+                    } else if config.ghost_tunnel_speed_modifier > 0.01 {
+                        config.ghost_tunnel_speed_modifier -= 0.01;
                     }
                     update_config_value_text(
                         &mut value_query,
@@ -728,10 +720,8 @@ fn change_config_value(
                         if config.frightened_ghost_speed_modifier < 10.0 {
                             config.frightened_ghost_speed_modifier += 0.01;
                         }
-                    } else {
-                        if config.frightened_ghost_speed_modifier > 0.01 {
-                            config.frightened_ghost_speed_modifier -= 0.01;
-                        }
+                    } else if config.frightened_ghost_speed_modifier > 0.01 {
+                        config.frightened_ghost_speed_modifier -= 0.01;
                     }
                     update_config_value_text(
                         &mut value_query,

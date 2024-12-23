@@ -459,7 +459,7 @@ mod tests {
         let spec = Spec::default();
 
         let specs_per_level =
-            SpecsPerLevel::from_levels_and_specs([(1, spec.clone())], Spec::default());
+            SpecsPerLevel::from_levels_and_specs([(1, spec)], Spec::default());
 
         let retrieved_spec = specs_per_level.get_for(&level);
 
@@ -483,7 +483,7 @@ mod tests {
         };
 
         let specs_per_level =
-            SpecsPerLevel::from_levels_and_specs([(1, spec.clone())], Spec::default());
+            SpecsPerLevel::from_levels_and_specs([(1, spec)], Spec::default());
 
         let retrieved_spec = specs_per_level.get_for(&Level(42));
 

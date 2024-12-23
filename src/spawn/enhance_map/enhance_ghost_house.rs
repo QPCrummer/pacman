@@ -179,18 +179,18 @@ fn spawn_corners(
     [
         spawn_wall(
             commands,
-            &sheet,
+            sheet,
             D0,
             Pos::new(bottom_left.x(), top_right.y()),
         ),
-        spawn_wall(commands, &sheet, D90, top_right),
+        spawn_wall(commands, sheet, D90, top_right),
         spawn_wall(
             commands,
-            &sheet,
+            sheet,
             D180,
             Pos::new(top_right.x(), bottom_left.y()),
         ),
-        spawn_wall(commands, &sheet, D270, bottom_left),
+        spawn_wall(commands, sheet, D270, bottom_left),
     ]
 }
 
@@ -208,25 +208,25 @@ fn spawn_top(
 
     match rotation {
         D0 => vec![
-            spawn_wall(commands, &sheet, rotation, Pos::new(x, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 1, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 1, y)),
             spawn_entrance(commands, asset_server, rotation, Pos::new(x + 2, y)),
             spawn_entrance(commands, asset_server, rotation, Pos::new(x + 3, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 4, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 5, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 4, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 5, y)),
         ],
         D180 => vec![
-            spawn_wall(commands, &sheet, rotation, Pos::new(x, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 1, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 2, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 3, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 4, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 5, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 1, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 2, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 3, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 4, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 5, y)),
         ],
         _ => vec![
-            spawn_wall(commands, &sheet, rotation, Pos::new(x, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 1, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 2, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 1, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 2, y)),
         ],
     }
 }
@@ -244,25 +244,25 @@ fn spawn_bottom(
 
     match rotation {
         D180 => vec![
-            spawn_wall(commands, &sheet, rotation, Pos::new(x, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 1, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 1, y)),
             spawn_entrance(commands, asset_server, rotation, Pos::new(x + 2, y)),
             spawn_entrance(commands, asset_server, rotation, Pos::new(x + 3, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 4, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 5, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 4, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 5, y)),
         ],
         D0 => vec![
-            spawn_wall(commands, &sheet, rotation, Pos::new(x, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 1, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 2, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 3, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 4, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 5, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 1, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 2, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 3, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 4, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 5, y)),
         ],
         _ => vec![
-            spawn_wall(commands, &sheet, rotation, Pos::new(x, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 1, y)),
-            spawn_wall(commands, &sheet, rotation, Pos::new(x + 2, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 1, y)),
+            spawn_wall(commands, sheet, rotation, Pos::new(x + 2, y)),
         ],
     }
 }

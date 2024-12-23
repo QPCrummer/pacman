@@ -194,7 +194,6 @@ fn switch_states_based_on_events(
 
     if ghost_eaten_events.read().count() > 0 {
         game_state.set(Game(GhostEatenPause));
-        return;
     }
 }
 

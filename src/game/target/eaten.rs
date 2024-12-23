@@ -1,7 +1,7 @@
 use crate::core::prelude::*;
 use crate::game::target::TargetSetter;
 
-impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
+impl TargetSetter<'_, '_, '_> {
     /// Determine the next target coordinates for a ghost when in "Eaten" state.
     ///
     /// When eaten, a ghost walks to the ghost house and enters it. When at the ghost house, he aligns perfectly
@@ -93,7 +93,7 @@ impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
             .positions
             .into_iter()
             .map(|pos| (pos, pos.distance(&position)))
-            .min_by(|(_, dis_a), (_, dis_b)| dis_a.partial_cmp(&dis_b).unwrap())
+            .min_by(|(_, dis_a), (_, dis_b)| dis_a.partial_cmp(dis_b).unwrap())
             .map(|(pos, _)| pos)
             .unwrap();
 

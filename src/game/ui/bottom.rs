@@ -87,7 +87,6 @@ fn spawn_ui_lives(commands: &mut Commands, asset_server: &AssetServer, lives: &L
         .id();
 
     let ui_live_vec = (0..**lives)
-        .into_iter()
         .map(|i| spawn_ui_live(i, commands, asset_server))
         .collect::<Vec<_>>();
 
@@ -141,7 +140,7 @@ fn spawn_ui_fruits(
         ))
         .id();
 
-    let fruits_to_display = get_fruits_to_display(&level, &specs_per_level);
+    let fruits_to_display = get_fruits_to_display(level, specs_per_level);
 
     for (i, fruit) in fruits_to_display.into_iter().enumerate() {
         let ui_fruit = spawn_ui_fruit(commands, asset_server, i, fruit);
@@ -155,7 +154,6 @@ fn get_fruits_to_display(level: &Level, specs_per_level: &SpecsPerLevel) -> Vec<
     let border = level.checked_sub(6).unwrap_or(1).max(1);
     (border..=**level)
         .rev()
-        .into_iter()
         .map(|i| specs_per_level.get_for(&Level(i)).fruit_to_spawn)
         .collect()
 }

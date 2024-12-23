@@ -57,11 +57,11 @@ fn move_ghost(
         return;
     }
 
-    let mut coordinates = &mut transform.translation;
+    let coordinates = &mut transform.translation;
     let delta_seconds = time.delta_seconds();
     let target_coordinates = target.get();
-    move_in_direction(&mut coordinates, delta_seconds, &direction, speed);
-    limit_movement(&mut coordinates, &direction, &target_coordinates);
+    move_in_direction(coordinates, delta_seconds, direction, speed);
+    limit_movement(coordinates, direction, &target_coordinates);
 
     if on_target(*coordinates, target_coordinates, direction) {
         // Fix slight errors which might cause ghost to get stuck
