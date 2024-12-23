@@ -1,12 +1,11 @@
-use bevy::prelude::*;
 use crate::core::prelude::Fruit;
+use bevy::prelude::*;
 
 pub(super) struct InteractionsPlugin;
 
 impl Plugin for InteractionsPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<PacmanWasHit>()
+        app.register_type::<PacmanWasHit>()
             .register_type::<GhostWasEaten>()
             .register_type::<DotWasEaten>()
             .register_type::<EnergizerWasEaten>()
@@ -15,8 +14,7 @@ impl Plugin for InteractionsPlugin {
             .add_event::<GhostWasEaten>()
             .add_event::<DotWasEaten>()
             .add_event::<EnergizerWasEaten>()
-            .add_event::<FruitWasEaten>()
-        ;
+            .add_event::<FruitWasEaten>();
     }
 }
 

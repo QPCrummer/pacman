@@ -1,50 +1,28 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub struct EnergizerPlugin;
 
 impl Plugin for EnergizerPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(Start)),
-                spawn_energizer,
-            )
+        app.add_systems(OnEnter(Game(Start)), spawn_energizer)
             .add_systems(
                 Update,
                 (
                     start_energizer_timer_when_energizer_eaten
                         .in_set(ProcessIntersectionsWithPacman),
-                    update_energizer_timer
-                        .after(start_energizer_timer_when_energizer_eaten)
+                    update_energizer_timer.after(start_energizer_timer_when_energizer_eaten),
                 )
                     .run_if(in_state(Game(Running))),
             )
-            .add_systems(
-                OnExit(Game(LevelTransition)),
-                spawn_energizer,
-            )
-            .add_systems(
-                OnEnter(Game(PacmanHit)),
-                despawn_energizer_timer,
-            )
-            .add_systems(
-                OnEnter(Game(LevelTransition)),
-                despawn_energizer_timer,
-            )
+            .add_systems(OnExit(Game(LevelTransition)), spawn_energizer)
+            .add_systems(OnEnter(Game(PacmanHit)), despawn_energizer_timer)
+            .add_systems(OnEnter(Game(LevelTransition)), despawn_energizer_timer)
             .add_systems(
                 OnExit(Game(GameOver)),
-                (
-                    despawn_energizers,
-                    despawn_energizer_timer
-                ),
+                (despawn_energizers, despawn_energizer_timer),
             )
-            .add_systems(
-                Update,
-                animate_energizers
-                    .run_if(in_game),
-            )
-        ;
+            .add_systems(Update, animate_energizers.run_if(in_game));
     }
 }
 
@@ -53,11 +31,13 @@ fn spawn_energizer(
     asset_server: Res<AssetServer>,
     spawners: Query<&Tiles, With<EnergizerSpawn>>,
 ) {
-    let energizers = commands.spawn((
-        Name::new("Energizers"),
-        Energizers,
-        SpatialBundle::default()
-    )).id();
+    let energizers = commands
+        .spawn((
+            Name::new("Energizers"),
+            Energizers,
+            SpatialBundle::default(),
+        ))
+        .id();
 
     for tiles in &spawners {
         commands.entity(energizers).with_children(|parent| {
@@ -73,7 +53,7 @@ fn spawn_energizer(
                 },
                 Energizer,
                 Edible,
-                Name::new("Energizer")
+                Name::new("Energizer"),
             ));
         });
     }
@@ -107,16 +87,11 @@ fn update_energizer_timer(
     }
 }
 
-fn despawn_energizer_timer(
-    mut commands: Commands,
-) {
+fn despawn_energizer_timer(mut commands: Commands) {
     commands.remove_resource::<EnergizerTimer>();
 }
 
-fn despawn_energizers(
-    mut commands: Commands,
-    query: Query<Entity, With<Energizers>>,
-) {
+fn despawn_energizers(mut commands: Commands, query: Query<Entity, With<Energizers>>) {
     for e in &query {
         commands.entity(e).despawn_recursive();
     }
@@ -143,7 +118,7 @@ fn animate_energizers(
         for mut vis in &mut query {
             *vis = match *vis {
                 Visibility::Visible => Visibility::Hidden,
-                _ => Visibility::Visible
+                _ => Visibility::Visible,
             }
         }
     }

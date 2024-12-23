@@ -30,11 +30,11 @@ impl XYEqual for Vec3 {
 /// Provides a helper method to create a Vec3 from an iterator of Position.
 /// Despite taking an iterator, exactly two elements are expected. Using iterators just makes things easier.
 pub trait FromPositions {
-    fn from_positions<'a>(positions: impl IntoIterator<Item=&'a Pos>, z: f32) -> Self;
+    fn from_positions<'a>(positions: impl IntoIterator<Item = &'a Pos>, z: f32) -> Self;
 }
 
 impl FromPositions for Vec3 {
-    fn from_positions<'a>(positions: impl IntoIterator<Item=&'a Pos>, z: f32) -> Self {
+    fn from_positions<'a>(positions: impl IntoIterator<Item = &'a Pos>, z: f32) -> Self {
         let positions = positions.into_iter().collect::<Vec<_>>();
         assert_eq!(positions.len(), 2);
 
@@ -52,7 +52,7 @@ impl FromPositions for Vec3 {
                 let x = (vec0.x + vec1.x) / 2.0;
                 let y = vec0.y;
                 Vec3::new(x, y, z)
-            },
+            }
         }
     }
 }

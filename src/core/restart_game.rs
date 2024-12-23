@@ -4,10 +4,8 @@ pub(super) struct RestartGamePlugin;
 
 impl Plugin for RestartGamePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_event::<GameWasRestarted>()
-            .register_type::<GameWasRestarted>()
-        ;
+        app.add_event::<GameWasRestarted>()
+            .register_type::<GameWasRestarted>();
     }
 }
 

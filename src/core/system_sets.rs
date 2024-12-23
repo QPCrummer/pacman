@@ -5,13 +5,14 @@ pub(super) struct SystemSetsPlugin;
 
 impl Plugin for SystemSetsPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .configure_sets(Update, DetectIntersectionsWithPacman.before(ProcessIntersectionsWithPacman))
-            .configure_sets(Update, ProcessIntersectionsWithPacman.before(SetState))
-            .configure_sets(Update, SetState.before(SetTarget))
-            .configure_sets(Update, SetTarget.before(MoveEntities))
-            .configure_sets(Update, MoveEntities.before(UpdateGameState))
-        ;
+        app.configure_sets(
+            Update,
+            DetectIntersectionsWithPacman.before(ProcessIntersectionsWithPacman),
+        )
+        .configure_sets(Update, ProcessIntersectionsWithPacman.before(SetState))
+        .configure_sets(Update, SetState.before(SetTarget))
+        .configure_sets(Update, SetTarget.before(MoveEntities))
+        .configure_sets(Update, MoveEntities.before(UpdateGameState));
     }
 }
 

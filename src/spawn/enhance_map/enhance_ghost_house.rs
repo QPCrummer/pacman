@@ -7,12 +7,7 @@ pub(super) struct EnhanceGhostHousePlugin;
 
 impl Plugin for EnhanceGhostHousePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Spawn(EnhanceMap)),
-                enhance_ghost_house
-            )
-        ;
+        app.add_systems(OnEnter(Spawn(EnhanceMap)), enhance_ghost_house);
     }
 }
 
@@ -26,18 +21,17 @@ fn enhance_ghost_house(
     let rotation = get_rotation(&ghost_house_areas);
     let spawns = create_spawns(rotation, bottom_left);
 
-    let ghost_house = commands.spawn((
-        Name::new("GhostHouse"),
-        GhostHouse,
-        SpatialBundle::default()
-    )).id();
+    let ghost_house = commands
+        .spawn((
+            Name::new("GhostHouse"),
+            GhostHouse,
+            SpatialBundle::default(),
+        ))
+        .id();
 
     for spawn in spawns {
         commands.entity(ghost_house).with_children(|parent| {
-            parent.spawn((
-                Name::new("GhostSpawn"),
-                spawn
-            ));
+            parent.spawn((Name::new("GhostSpawn"), spawn));
         });
     }
 
@@ -47,7 +41,7 @@ fn enhance_ghost_house(
         bottom_left,
         rotation,
         &asset_server,
-        &sprite_sheets
+        &sprite_sheets,
     );
 }
 
@@ -55,10 +49,9 @@ fn get_bottom_left(ghost_house_areas: &Query<(&GhostHouseArea, &Tiles)>) -> Pos 
     ghost_house_areas
         .iter()
         .map(|(_, tiles)| tiles.to_pos())
-        .fold(
-            Pos::new(isize::MAX, isize::MAX),
-            |acc, pos| Pos::new(isize::min(acc.x(), pos.x()), isize::min(acc.y(), pos.y())),
-        )
+        .fold(Pos::new(isize::MAX, isize::MAX), |acc, pos| {
+            Pos::new(isize::min(acc.x(), pos.x()), isize::min(acc.y(), pos.y()))
+        })
 }
 
 fn get_rotation(ghost_house_areas: &Query<(&GhostHouseArea, &Tiles)>) -> Rotation {
@@ -150,16 +143,25 @@ fn spawn_house_walls(
         _ => Pos::new(bottom_left.x() + 4, bottom_left.y() + 7),
     };
 
-    let corners = spawn_corners(
+    let corners = spawn_corners(commands, bottom_left, top_right, sprite_sheets);
+    let top = spawn_top(
         commands,
+        rotation,
         bottom_left,
         top_right,
+        asset_server,
         sprite_sheets,
     );
-    let top = spawn_top(commands, rotation, bottom_left, top_right, asset_server, sprite_sheets);
     let bottom = spawn_bottom(commands, rotation, bottom_left, asset_server, sprite_sheets);
     let left = spawn_left(commands, rotation, bottom_left, asset_server, sprite_sheets);
-    let right = spawn_right(commands, rotation, bottom_left, top_right, asset_server, sprite_sheets);
+    let right = spawn_right(
+        commands,
+        rotation,
+        bottom_left,
+        top_right,
+        asset_server,
+        sprite_sheets,
+    );
     commands.entity(ghost_house).push_children(&corners);
     commands.entity(ghost_house).push_children(&top);
     commands.entity(ghost_house).push_children(&bottom);
@@ -175,9 +177,19 @@ fn spawn_corners(
 ) -> [Entity; 4] {
     let sheet = sprite_sheets.get_sheet("textures/walls/ghost_house_wall_corner");
     [
-        spawn_wall(commands, &sheet, D0, Pos::new(bottom_left.x(), top_right.y())),
+        spawn_wall(
+            commands,
+            &sheet,
+            D0,
+            Pos::new(bottom_left.x(), top_right.y()),
+        ),
         spawn_wall(commands, &sheet, D90, top_right),
-        spawn_wall(commands, &sheet, D180, Pos::new(top_right.x(), bottom_left.y())),
+        spawn_wall(
+            commands,
+            &sheet,
+            D180,
+            Pos::new(top_right.x(), bottom_left.y()),
+        ),
         spawn_wall(commands, &sheet, D270, bottom_left),
     ]
 }
@@ -337,28 +349,33 @@ fn spawn_wall(
     let animations = Animations::new(
         [
             ("idle", Animation::from_texture(sheet.image_at(0))),
-            ("blinking", Animation::from_textures(0.5, true, sheet.images_at([0, 1])))
-        ]
-        , "idle",
+            (
+                "blinking",
+                Animation::from_textures(0.5, true, sheet.images_at([0, 1])),
+            ),
+        ],
+        "idle",
     );
 
     let mut transform = Transform::from_translation(position.to_vec3(0.0));
     transform.rotation = rotation.quat_z();
 
-    commands.spawn((
-        Name::new("Wall"),
-        Wall,
-        SpriteBundle {
-            texture: animations.current().texture(),
-            sprite: Sprite {
-                custom_size: Some(Vec2::splat(WALL_DIMENSION)),
+    commands
+        .spawn((
+            Name::new("Wall"),
+            Wall,
+            SpriteBundle {
+                texture: animations.current().texture(),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::splat(WALL_DIMENSION)),
+                    ..default()
+                },
+                transform,
                 ..default()
             },
-            transform,
-            ..default()
-        },
-        animations
-    )).id()
+            animations,
+        ))
+        .id()
 }
 
 fn spawn_entrance(
@@ -370,17 +387,19 @@ fn spawn_entrance(
     let mut transform = Transform::from_translation(position.to_vec3(0.0));
     transform.rotation = rotation.quat_z();
 
-    commands.spawn((
-        Name::new("Wall"),
-        Wall,
-        SpriteBundle {
-            texture: asset_server.load("textures/walls/ghost_house_entrance.png"),
-            sprite: Sprite {
-                custom_size: Some(Vec2::splat(WALL_DIMENSION)),
+    commands
+        .spawn((
+            Name::new("Wall"),
+            Wall,
+            SpriteBundle {
+                texture: asset_server.load("textures/walls/ghost_house_entrance.png"),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::splat(WALL_DIMENSION)),
+                    ..default()
+                },
+                transform,
                 ..default()
             },
-            transform,
-            ..default()
-        }
-    )).id()
+        ))
+        .id()
 }

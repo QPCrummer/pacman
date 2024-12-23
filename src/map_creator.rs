@@ -1,7 +1,7 @@
+use crate::core::prelude::*;
+use bevy::prelude::*;
 use std::fs::File;
 use std::io::Write;
-use bevy::prelude::*;
-use crate::core::prelude::*;
 
 /// Create the default pacman map as a bevy scene.
 pub fn create_map(commands: &mut App) {
@@ -12,64 +12,79 @@ pub fn create_map(commands: &mut App) {
 
 macro_rules! corner {
     ($creator:expr, $rot:expr, O) => {
-        $creator.spawn($creator.maze, (
-            Wall,
-            WallStyle {
-                wall_type: WallType::Outer,
-                rotation: $rot,
-                is_corner: true,
-            }
-        ))
+        $creator.spawn(
+            $creator.maze,
+            (
+                Wall,
+                WallStyle {
+                    wall_type: WallType::Outer,
+                    rotation: $rot,
+                    is_corner: true,
+                },
+            ),
+        )
     };
 
     ($creator:expr, $rot:expr, O, $ghost:expr) => {
-        $creator.spawn($creator.maze, (
-            Wall,
-            WallStyle {
-                wall_type: WallType::Outer,
-                rotation: $rot,
-                is_corner: true,
-            },
-            GhostCorner($ghost)
-        ))
+        $creator.spawn(
+            $creator.maze,
+            (
+                Wall,
+                WallStyle {
+                    wall_type: WallType::Outer,
+                    rotation: $rot,
+                    is_corner: true,
+                },
+                GhostCorner($ghost),
+            ),
+        )
     };
 
     ($creator:expr, $rot:expr, I) => {
-        $creator.spawn($creator.maze, (
-            Wall,
-            WallStyle {
-                wall_type: WallType::Inner,
-                rotation: $rot,
-                is_corner: true,
-            }
-        ))
+        $creator.spawn(
+            $creator.maze,
+            (
+                Wall,
+                WallStyle {
+                    wall_type: WallType::Inner,
+                    rotation: $rot,
+                    is_corner: true,
+                },
+            ),
+        )
     };
 }
 
 macro_rules! wall {
     ($creator:expr, $amount:expr, $rot:expr, O) => {
         for _ in 0..$amount {
-            $creator.spawn($creator.maze, (
-                Wall,
-                WallStyle {
-                    wall_type: WallType::Outer,
-                    rotation: $rot,
-                    is_corner: false,
-                }
-            ))
+            $creator.spawn(
+                $creator.maze,
+                (
+                    Wall,
+                    WallStyle {
+                        wall_type: WallType::Outer,
+                        rotation: $rot,
+                        is_corner: false,
+                    },
+                ),
+            )
         }
     };
 
     ($creator:expr, $amount:expr, $rot:expr, I) => {
         for _ in 0..$amount {
-            $creator.spawn($creator.maze, (
-                Wall,
-                WallStyle {
-                    wall_type: WallType::Inner,
-                    rotation: $rot,
-                    is_corner: false,
-                }
-            ))
+            $creator.spawn(
+                $creator.maze,
+                (
+                    Wall,
+                    WallStyle {
+                        wall_type: WallType::Inner,
+                        rotation: $rot,
+                        is_corner: false,
+                    },
+                ),
+            )
         }
     };
 }
@@ -77,38 +92,24 @@ macro_rules! wall {
 macro_rules! dot {
     ($creator:expr, $amount:expr) => {
         for _ in 0..$amount {
-            $creator.spawn($creator.dot_spawns, (
-                DotSpawn,
-            ))
+            $creator.spawn($creator.dot_spawns, (DotSpawn,))
         }
     };
 }
 
 macro_rules! energizer {
     ($creator:expr) => {
-        $creator.spawn(
-            $creator.energizer_spawns,
-            EnergizerSpawn
-        );
+        $creator.spawn($creator.energizer_spawns, EnergizerSpawn);
     };
 }
 
 macro_rules! one_way {
     ($creator:expr, Empty) => {
-        $creator.spawn(
-            $creator.maze,
-            OneWay
-        );
+        $creator.spawn($creator.maze, OneWay);
     };
 
     ($creator:expr, Dot) => {
-        $creator.spawn(
-            $creator.dot_spawns,
-            (
-                OneWay,
-                DotSpawn
-            ),
-        );
+        $creator.spawn($creator.dot_spawns, (OneWay, DotSpawn));
     };
 }
 
@@ -123,10 +124,7 @@ macro_rules! empty {
 macro_rules! ghost_house {
     ($creator:expr, $amount:expr) => {
         for _ in 0..$amount {
-            $creator.spawn(
-                $creator.maze,
-                GhostHouseArea {rotation: D0}
-            );
+            $creator.spawn($creator.maze, GhostHouseArea { rotation: D0 });
         }
     };
 }
@@ -135,14 +133,14 @@ macro_rules! tunnel_left {
     ($creator:expr) => {
         $creator.spawn(
             $creator.maze,
-            Tunnel {direction: Left, index: 0}
+            Tunnel {
+                direction: Left,
+                index: 0,
+            },
         );
 
         for _ in 0..5 {
-            $creator.spawn(
-                $creator.maze,
-                TunnelHallway
-            );
+            $creator.spawn($creator.maze, TunnelHallway);
         }
     };
 }
@@ -150,34 +148,28 @@ macro_rules! tunnel_left {
 macro_rules! tunnel_right {
     ($creator:expr) => {
         for _ in 0..5 {
-            $creator.spawn(
-                $creator.maze,
-                TunnelHallway
-            );
+            $creator.spawn($creator.maze, TunnelHallway);
         }
 
         $creator.spawn(
             $creator.maze,
-            Tunnel {direction: Right, index: 0}
+            Tunnel {
+                direction: Right,
+                index: 0,
+            },
         );
     };
 }
 
 macro_rules! fruit {
     ($creator:expr) => {
-        $creator.spawn_double(
-            $creator.map,
-            FruitSpawn
-        );
+        $creator.spawn_double($creator.map, FruitSpawn);
     };
 }
 
 macro_rules! pacman {
     ($creator:expr) => {
-        $creator.spawn_double(
-            $creator.map,
-            PacmanSpawn
-        );
+        $creator.spawn_double($creator.map, PacmanSpawn);
     };
 }
 
@@ -199,7 +191,7 @@ struct MapCreator<'a> {
     /// Parent entity of all dot spawns
     dot_spawns: Entity,
     /// Parent entity of all energizer spawns
-    energizer_spawns: Entity
+    energizer_spawns: Entity,
 }
 
 impl<'a> MapCreator<'a> {
@@ -210,7 +202,9 @@ impl<'a> MapCreator<'a> {
         let dot_spawns = map_world.spawn(DotSpawns).id();
         let energizer_spawns = map_world.spawn(EnergizerSpawns).id();
 
-        map_world.entity_mut(map).push_children(&[maze, dot_spawns, energizer_spawns]);
+        map_world
+            .entity_mut(map)
+            .push_children(&[maze, dot_spawns, energizer_spawns]);
 
         MapCreator {
             width,
@@ -221,7 +215,7 @@ impl<'a> MapCreator<'a> {
             map,
             maze,
             dot_spawns,
-            energizer_spawns
+            energizer_spawns,
         }
     }
 
@@ -289,7 +283,7 @@ impl<'a> MapCreator<'a> {
         wall!(self, 1, D270, I);
         energizer!(self);
         wall!(self, 1, D90, O);
-        
+
         // 4
         wall!(self, 1, D270, O);
         dot!(self, 1);
@@ -313,12 +307,12 @@ impl<'a> MapCreator<'a> {
         corner!(self, D180, I);
         dot!(self, 1);
         wall!(self, 1, D90, O);
-        
+
         // 5
         wall!(self, 1, D270, O);
         dot!(self, 26);
         wall!(self, 1, D90, O);
-        
+
         // 6
         wall!(self, 1, D270, O);
         dot!(self, 1);
@@ -367,7 +361,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D180, I);
         dot!(self, 1);
         wall!(self, 1, D90, O);
-        
+
         // 8
         wall!(self, 1, D270, O);
         dot!(self, 6);
@@ -381,7 +375,7 @@ impl<'a> MapCreator<'a> {
         wall!(self, 1, D90, I);
         dot!(self, 6);
         wall!(self, 1, D90, O);
-        
+
         // 9
         corner!(self, D270, O);
         wall!(self, 4, D180, O);
@@ -402,7 +396,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D0, O);
         wall!(self, 4, D180, O);
         corner!(self, D180, O);
-        
+
         // 10
         empty!(self, 5);
         wall!(self, 1, D270, O);
@@ -422,7 +416,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         wall!(self, 1, D90, O);
         empty!(self, 5);
-        
+
         // 11
         empty!(self, 5);
         wall!(self, 1, D270, O);
@@ -454,7 +448,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         wall!(self, 1, D90, O);
         empty!(self, 5);
-        
+
         // 13
         wall!(self, 5, D180, O);
         corner!(self, D180, O);
@@ -469,14 +463,14 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         corner!(self, D270, O);
         wall!(self, 5, D180, O);
-        
+
         // 14
         tunnel_left!(self);
         empty!(self, 4);
         ghost_house!(self, 8);
         empty!(self, 4);
         tunnel_right!(self);
-        
+
         // 15
         wall!(self, 5, D0, O);
         corner!(self, D90, O);
@@ -491,7 +485,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         corner!(self, D0, O);
         wall!(self, 5, D0, O);
-        
+
         // 16
         empty!(self, 5);
         wall!(self, 1, D270, O);
@@ -506,7 +500,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         wall!(self, 1, D90, O);
         empty!(self, 5);
-        
+
         // 17
         empty!(self, 5);
         wall!(self, 1, D270, O);
@@ -521,7 +515,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         wall!(self, 1, D90, O);
         empty!(self, 5);
-        
+
         // 18
         empty!(self, 5);
         wall!(self, 1, D270, O);
@@ -538,7 +532,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 1);
         wall!(self, 1, D90, O);
         empty!(self, 5);
-        
+
         // 19
         corner!(self, D0, O);
         wall!(self, 4, D180, O);
@@ -560,7 +554,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D270, O);
         wall!(self, 4, D180, O);
         corner!(self, D90, O);
-        
+
         // 20
         wall!(self, 1, D270, O);
         dot!(self, 12);
@@ -568,7 +562,7 @@ impl<'a> MapCreator<'a> {
         wall!(self, 1, D90, I);
         dot!(self, 12);
         wall!(self, 1, D90, O);
-        
+
         // 21
         wall!(self, 1, D270, O);
         dot!(self, 1);
@@ -592,7 +586,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D90, I);
         dot!(self, 1);
         wall!(self, 1, D90, O);
-        
+
         // 22
         wall!(self, 1, D270, O);
         dot!(self, 1);
@@ -618,7 +612,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D180, I);
         dot!(self, 1);
         wall!(self, 1, D90, O);
-        
+
         // 23
         wall!(self, 1, D270, O);
         energizer!(self);
@@ -635,7 +629,7 @@ impl<'a> MapCreator<'a> {
         dot!(self, 2);
         energizer!(self);
         wall!(self, 1, D90, O);
-        
+
         // 24
         corner!(self, D270, O);
         wall!(self, 1, D0, O);
@@ -660,7 +654,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D0, O);
         wall!(self, 1, D0, O);
         corner!(self, D180, O);
-        
+
         // 25
         corner!(self, D0, O);
         wall!(self, 1, D180, O);
@@ -688,7 +682,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D270, O);
         wall!(self, 1, D180, O);
         corner!(self, D90, O);
-        
+
         // 26
         wall!(self, 1, D270, O);
         dot!(self, 6);
@@ -702,7 +696,7 @@ impl<'a> MapCreator<'a> {
         wall!(self, 1, D90, I);
         dot!(self, 6);
         wall!(self, 1, D90, O);
-        
+
         // 27
         wall!(self, 1, D270, O);
         dot!(self, 1);
@@ -724,7 +718,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D90, I);
         dot!(self, 1);
         wall!(self, 1, D90, O);
-        
+
         // 28
         wall!(self, 1, D270, O);
         dot!(self, 1);
@@ -740,7 +734,7 @@ impl<'a> MapCreator<'a> {
         corner!(self, D180, I);
         dot!(self, 1);
         wall!(self, 1, D90, O);
-        
+
         // 29
         wall!(self, 1, D270, O);
         dot!(self, 26);
@@ -753,10 +747,15 @@ impl<'a> MapCreator<'a> {
     }
 
     fn spawn(&mut self, parent: Entity, bundle: impl Bundle) {
-        let e = self.map_world.spawn((
-            bundle,
-            Tiles::Single { pos: Pos::new(self.current_column as isize, self.current_row as isize) }
-        )).id();
+        let e = self
+            .map_world
+            .spawn((
+                bundle,
+                Tiles::Single {
+                    pos: Pos::new(self.current_column as isize, self.current_row as isize),
+                },
+            ))
+            .id();
 
         self.map_world.entity_mut(parent).push_children(&[e]);
 
@@ -764,13 +763,19 @@ impl<'a> MapCreator<'a> {
     }
 
     fn spawn_double(&mut self, parent: Entity, bundle: impl Bundle) {
-        let e = self.map_world.spawn((
-            bundle,
-            Tiles::Double {
-                pos_a: Pos::new(self.current_column as isize, self.current_row as isize),
-                pos_b: Pos::new((self.current_column + 1) as isize, self.current_row as isize),
-            }
-        )).id();
+        let e = self
+            .map_world
+            .spawn((
+                bundle,
+                Tiles::Double {
+                    pos_a: Pos::new(self.current_column as isize, self.current_row as isize),
+                    pos_b: Pos::new(
+                        (self.current_column + 1) as isize,
+                        self.current_row as isize,
+                    ),
+                },
+            ))
+            .id();
 
         self.map_world.entity_mut(parent).push_children(&[e]);
 

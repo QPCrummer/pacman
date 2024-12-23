@@ -4,9 +4,7 @@ pub(super) struct GhostStatePlugin;
 
 impl Plugin for GhostStatePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<GhostState>()
-        ;
+        app.register_type::<GhostState>();
     }
 }
 

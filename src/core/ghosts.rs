@@ -4,10 +4,8 @@ pub(super) struct GhostPlugin;
 
 impl Plugin for GhostPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Ghost>()
-            .register_type::<CurrentlyEatenGhost>()
-        ;
+        app.register_type::<Ghost>()
+            .register_type::<CurrentlyEatenGhost>();
     }
 }
 

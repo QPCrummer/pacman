@@ -1,31 +1,24 @@
-use bevy::prelude::*;
 use crate::core::game_state::MainMenu::Menu;
 use crate::core::prelude::*;
 use crate::game::ui::settings_screen::Config;
+use bevy::prelude::*;
 
 pub(super) struct LivesPlugin;
 
 impl Plugin for LivesPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(Lives(3))
+        app.insert_resource(Lives(3))
             .insert_resource(PointsRequiredForExtraLife::new())
             .add_systems(
                 Update,
                 (
                     remove_life_when_pacman_dies.in_set(ProcessIntersectionsWithPacman),
-                    add_life_if_player_reaches_specific_score
+                    add_life_if_player_reaches_specific_score,
                 )
-                    .run_if(in_state(Game(Running))))
-            .add_systems(
-                OnExit(Game(GameOver)),
-                reset_lives,
+                    .run_if(in_state(Game(Running))),
             )
-            .add_systems(
-                OnEnter(MainMenu(Menu)),
-                reset_lives,
-            )
-        ;
+            .add_systems(OnExit(Game(GameOver)), reset_lives)
+            .add_systems(OnEnter(MainMenu(Menu)), reset_lives);
     }
 }
 
@@ -49,10 +42,6 @@ fn add_life_if_player_reaches_specific_score(
     }
 }
 
-fn reset_lives(
-    mut lives: ResMut<Lives>,
-    config: Res<Config>,
-) {
+fn reset_lives(mut lives: ResMut<Lives>, config: Res<Config>) {
     lives.0 = config.starting_lives as usize;
 }
-

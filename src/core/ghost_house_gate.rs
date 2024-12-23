@@ -54,7 +54,7 @@ impl GhostHouseGate {
     fn create_release_timer_for_level(level: &Level) -> Timer {
         match **level {
             l if l < 5 => Timer::from_seconds(4.0, TimerMode::Once),
-            _ => Timer::from_seconds(3.0, TimerMode::Once)
+            _ => Timer::from_seconds(3.0, TimerMode::Once),
         }
     }
 
@@ -76,12 +76,17 @@ impl GhostHouseGate {
         self.release_timer.reset();
         self.released_ghosts.clear();
         self.ghost_preference_iterator = GhostPreferenceIterator::new();
-        self.current_waiting_ghost = self.ghost_preference_iterator.next().expect("first item should exists");
+        self.current_waiting_ghost = self
+            .ghost_preference_iterator
+            .next()
+            .expect("first item should exists");
     }
 
     /// Proceed the release timer and check if the current waiting ghost can be released.
     pub fn update(&mut self, delta: Duration) {
-        if self.all_ghosts_released() { return; }
+        if self.all_ghosts_released() {
+            return;
+        }
 
         self.release_timer.tick(delta);
 
@@ -138,7 +143,7 @@ impl Iterator for GhostPreferenceIterator {
 pub(crate) struct Counter {
     active_counter: ActiveCounter,
     per_ghost_counter: PerGhostCounter,
-    global_counter: Option<GlobalCounter>
+    global_counter: Option<GlobalCounter>,
 }
 
 impl Counter {
@@ -146,14 +151,14 @@ impl Counter {
         Counter {
             active_counter: PerGhost,
             per_ghost_counter: PerGhostCounter::new_for_level(level),
-            global_counter: None
+            global_counter: None,
         }
     }
 
     pub fn increment(&mut self, current_ghost: &Ghost) {
         match self.active_counter {
             PerGhost => self.per_ghost_counter.increment(current_ghost),
-            Global => self.global_counter.as_mut().unwrap().increment()
+            Global => self.global_counter.as_mut().unwrap().increment(),
         }
     }
 
@@ -167,7 +172,9 @@ impl Counter {
     /// Also switches from the global counter to the per ghost counter if the global counter is finished.
     pub fn limit_reached(&mut self, current_ghost: &Ghost) -> bool {
         match self.active_counter {
-            PerGhost => self.per_ghost_counter.limit_reached_for_ghost(current_ghost),
+            PerGhost => self
+                .per_ghost_counter
+                .limit_reached_for_ghost(current_ghost),
             Global => {
                 let global_counter = self.global_counter.as_ref().unwrap();
                 let result = global_counter.limit_reached_for_ghost(current_ghost);
@@ -206,7 +213,7 @@ impl PerGhostCounter {
             _ => PerGhostCounter {
                 ghost_counter_map,
                 ghost_limit_map: create_ghost_value_map(0, 0, 0, 0),
-            }
+            },
         }
     }
 
@@ -215,7 +222,8 @@ impl PerGhostCounter {
     }
 
     fn limit_reached_for_ghost(&self, current_ghost: &Ghost) -> bool {
-        self.ghost_counter_map.get(current_ghost).unwrap() == self.ghost_limit_map.get(current_ghost).unwrap()
+        self.ghost_counter_map.get(current_ghost).unwrap()
+            == self.ghost_limit_map.get(current_ghost).unwrap()
     }
 }
 
@@ -228,7 +236,7 @@ impl GlobalCounter {
     fn new() -> Self {
         GlobalCounter {
             value: 0,
-            ghost_limit_map: create_ghost_value_map(0, 7, 17, 32)
+            ghost_limit_map: create_ghost_value_map(0, 7, 17, 32),
         }
     }
 
@@ -245,7 +253,12 @@ impl GlobalCounter {
     }
 }
 
-fn create_ghost_value_map(blinky_val: usize, pinky_val: usize, inky_val: usize, clyde_val: usize) -> HashMap<Ghost, usize> {
+fn create_ghost_value_map(
+    blinky_val: usize,
+    pinky_val: usize,
+    inky_val: usize,
+    clyde_val: usize,
+) -> HashMap<Ghost, usize> {
     let mut map = HashMap::with_capacity(4);
     map.insert(Blinky, blinky_val);
     map.insert(Pinky, pinky_val);

@@ -1,5 +1,5 @@
-use std::time::Duration;
 use bevy::prelude::*;
+use std::time::Duration;
 
 use crate::core::prelude::*;
 
@@ -7,14 +7,7 @@ pub struct DotPlugin;
 
 impl Plugin for DotPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(Start)),
-                (
-                    spawn_dots,
-                    create_eaten_dots
-                ),
-            )
+        app.add_systems(OnEnter(Game(Start)), (spawn_dots, create_eaten_dots))
             .add_systems(
                 Update,
                 play_waka_when_dot_was_eaten
@@ -23,19 +16,9 @@ impl Plugin for DotPlugin {
             )
             .add_systems(
                 OnExit(Game(LevelTransition)),
-                (
-                    spawn_dots,
-                    reset_eaten_dots
-                ),
+                (spawn_dots, reset_eaten_dots),
             )
-            .add_systems(
-                OnExit(Game(GameOver)),
-                (
-                    despawn_dots,
-                    reset_eaten_dots
-                ),
-            )
-        ;
+            .add_systems(OnExit(Game(GameOver)), (despawn_dots, reset_eaten_dots));
     }
 }
 
@@ -44,11 +27,9 @@ fn spawn_dots(
     asset_server: Res<AssetServer>,
     spawn_query: Query<&Tiles, With<DotSpawn>>,
 ) {
-    let dots = commands.spawn((
-        Name::new("Dots"),
-        Dots,
-        SpatialBundle::default()
-    )).id();
+    let dots = commands
+        .spawn((Name::new("Dots"), Dots, SpatialBundle::default()))
+        .id();
 
     for tiles in &spawn_query {
         commands.entity(dots).with_children(|parent| {
@@ -64,23 +45,18 @@ fn spawn_dots(
                 },
                 Dot,
                 Edible,
-                Name::new("Dot")
+                Name::new("Dot"),
             ));
         });
     }
 }
 
-fn create_eaten_dots(
-    mut commands: Commands,
-    dot_spawn_query: Query<&DotSpawn>,
-) {
+fn create_eaten_dots(mut commands: Commands, dot_spawn_query: Query<&DotSpawn>) {
     let num_dots = dot_spawn_query.iter().count();
     commands.insert_resource(EatenDots::new(num_dots))
 }
 
-fn reset_eaten_dots(
-    mut eaten_dots: ResMut<EatenDots>
-) {
+fn reset_eaten_dots(mut eaten_dots: ResMut<EatenDots>) {
     eaten_dots.reset()
 }
 
@@ -116,7 +92,7 @@ fn play_waka_when_dot_was_eaten(
                     AudioBundle {
                         source: asset_server.load("sounds/waka.ogg"),
                         ..default()
-                    }
+                    },
                 ));
 
                 *cached = false;
@@ -138,17 +114,14 @@ fn play_waka_when_dot_was_eaten(
                     AudioBundle {
                         source: asset_server.load("sounds/waka.ogg"),
                         ..default()
-                    }
+                    },
                 ));
             }
         };
     }
 }
 
-fn despawn_dots(
-    mut commands: Commands,
-    query: Query<Entity, With<Dots>>,
-) {
+fn despawn_dots(mut commands: Commands, query: Query<Entity, With<Dots>>) {
     for e in &query {
         commands.entity(e).despawn_recursive();
     }

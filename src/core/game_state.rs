@@ -1,13 +1,11 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub(super) struct GameStatePlugin;
 
 impl Plugin for GameStatePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<GameState>()
-        ;
+        app.register_type::<GameState>();
     }
 }
 
@@ -43,7 +41,7 @@ pub enum Setup {
     /// Start the preload of all assets of the game
     PreloadAssets,
     /// Create all sprite sheets from the preloaded assets
-    CreateSpriteSheets
+    CreateSpriteSheets,
 }
 
 #[derive(Reflect, Copy, Clone, Eq, PartialEq, Hash, Debug)]

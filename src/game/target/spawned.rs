@@ -1,6 +1,6 @@
-use bevy::prelude::*;
-use crate::game::target::TargetSetter;
 use crate::core::prelude::*;
+use crate::game::target::TargetSetter;
+use bevy::prelude::*;
 
 impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
     /// Determine the next target coordinates for a ghost when in "Spawned" state.
@@ -11,7 +11,10 @@ impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
     ///
     /// If a ghost cannot leave the house yet, he just moves around, eager to leave and hunt pacman.
     pub fn set_spawned_target(&mut self) {
-        if self.ghost_house_gate.ghost_can_leave_house(self.components.ghost) {
+        if self
+            .ghost_house_gate
+            .ghost_can_leave_house(self.components.ghost)
+        {
             self.leave_house()
         } else {
             self.bounce_around()
@@ -22,13 +25,19 @@ impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
     fn bounce_around(&mut self) {
         let coordinates = self.components.transform.translation;
         let respawn = self.get_spawn(*self.components.ghost).coordinates;
-        let above_respawn = self.coordinates_slightly_in_direction(respawn, self.get_spawn(Pinky).spawn_direction);
-        let below_respawn = self.coordinates_slightly_in_direction(respawn, self.get_spawn(Pinky).spawn_direction.opposite());
+        let above_respawn =
+            self.coordinates_slightly_in_direction(respawn, self.get_spawn(Pinky).spawn_direction);
+        let below_respawn = self.coordinates_slightly_in_direction(
+            respawn,
+            self.get_spawn(Pinky).spawn_direction.opposite(),
+        );
 
         if coordinates.xy_equal(&respawn) {
             match *self.components.direction {
-                dir if dir == self.get_spawn(Pinky).spawn_direction => self.components.target.set(above_respawn),
-                _ => self.components.target.set(below_respawn)
+                dir if dir == self.get_spawn(Pinky).spawn_direction => {
+                    self.components.target.set(above_respawn)
+                }
+                _ => self.components.target.set(below_respawn),
             };
         } else if coordinates.xy_equal(&above_respawn) {
             self.components.target.set(below_respawn);
@@ -84,17 +93,23 @@ impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
         *self.components.direction = match self.get_spawn(Pinky).spawn_direction {
             Up | Down => match respawn.x < center.x {
                 true => Right,
-                false => Left
+                false => Left,
             },
             Right | Left => match respawn.y < center.y {
                 true => Up,
-                false => Down
+                false => Down,
             },
         };
 
         match self.get_spawn(Pinky).spawn_direction {
-            Up | Down => self.components.target.set(Vec3::new(center.x, coordinates.y, 0.0)),
-            Left | Right => self.components.target.set(Vec3::new(coordinates.x, center.y, 0.0)),
+            Up | Down => self
+                .components
+                .target
+                .set(Vec3::new(center.x, coordinates.y, 0.0)),
+            Left | Right => self
+                .components
+                .target
+                .set(Vec3::new(coordinates.x, center.y, 0.0)),
         }
     }
 

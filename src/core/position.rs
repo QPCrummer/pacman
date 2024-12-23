@@ -1,7 +1,7 @@
-use bevy::prelude::*;
-use pad::Position;
-use pad::Direction::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
+use pad::Direction::*;
+use pad::Position;
 
 /// The x and y coordinates of some entity.
 #[derive(Reflect, Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
@@ -16,10 +16,7 @@ impl Pos {
         let x = (vec.x + FIELD_SIZE / 2.0) / FIELD_SIZE;
         let y = (vec.y + FIELD_SIZE / 2.0) / FIELD_SIZE;
 
-        Pos::new(
-            x as isize,
-            y as isize
-        )
+        Pos::new(x as isize, y as isize)
     }
 
     pub fn x(&self) -> isize {
@@ -39,8 +36,9 @@ impl Pos {
         Pos(self.0.position_in_direction(dir.to_direction(), distance))
     }
 
-    pub fn neighbours_with_directions(&self) -> impl IntoIterator<Item=(Pos, Dir)> {
-        self.0.cardinal_neighbours_with_directions()
+    pub fn neighbours_with_directions(&self) -> impl IntoIterator<Item = (Pos, Dir)> {
+        self.0
+            .cardinal_neighbours_with_directions()
             .into_iter()
             .map(|(pos, dir)| (Pos(pos), Dir::from_direction(dir)))
     }
@@ -52,9 +50,9 @@ impl Pos {
                 XM => Left,
                 YP => Up,
                 YM => Down,
-                _ => panic!("invalid direction")
-            }
-            None => panic!("positions are not neighboured")
+                _ => panic!("invalid direction"),
+            },
+            None => panic!("positions are not neighboured"),
         }
     }
 

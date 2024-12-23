@@ -5,9 +5,7 @@ pub(super) struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Level>()
-        ;
+        app.register_type::<Level>();
     }
 }
 

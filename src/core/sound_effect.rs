@@ -1,13 +1,11 @@
-use std::time::Duration;
 use bevy::prelude::*;
+use std::time::Duration;
 
 pub(super) struct SoundEffectPlugin;
 
 impl Plugin for SoundEffectPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<SoundEffect>()
-        ;
+        app.register_type::<SoundEffect>();
     }
 }
 
@@ -15,14 +13,14 @@ impl Plugin for SoundEffectPlugin {
 /// eating dots. Has a timer on it to despawn it later.
 #[derive(Component, Reflect)]
 pub struct SoundEffect {
-    timer: Timer
+    timer: Timer,
 }
 
 impl SoundEffect {
     /// Create a new sound effect with a timer of one second.
     pub fn new(duration_secs: u64) -> Self {
         SoundEffect {
-            timer: Timer::new(Duration::from_secs(duration_secs), TimerMode::Once)
+            timer: Timer::new(Duration::from_secs(duration_secs), TimerMode::Once),
         }
     }
 

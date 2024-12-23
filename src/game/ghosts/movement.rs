@@ -1,31 +1,26 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub struct MovePlugin;
 
 impl Plugin for MovePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                Update,
-                move_ghosts
-                    .in_set(MoveEntities)
-                    .run_if(in_state(Game(Running))),
-            )
-            .add_systems(
-                Update,
-                move_only_not_currently_eaten_ghosts
-                    .in_set(MoveEntities)
-                    .run_if(in_state(Game(GhostEatenPause)))
-            )
-        ;
+        app.add_systems(
+            Update,
+            move_ghosts
+                .in_set(MoveEntities)
+                .run_if(in_state(Game(Running))),
+        )
+        .add_systems(
+            Update,
+            move_only_not_currently_eaten_ghosts
+                .in_set(MoveEntities)
+                .run_if(in_state(Game(GhostEatenPause))),
+        );
     }
 }
 
-fn move_ghosts(
-    time: Res<Time>,
-    mut query: Query<(&Dir, &mut Target, &mut Transform, &Speed)>,
-) {
+fn move_ghosts(time: Res<Time>, mut query: Query<(&Dir, &mut Target, &mut Transform, &Speed)>) {
     for (direction, mut target, mut transform, speed) in query.iter_mut() {
         move_ghost(&time, direction, &mut target, &mut transform, speed)
     }
@@ -34,15 +29,30 @@ fn move_ghosts(
 fn move_only_not_currently_eaten_ghosts(
     time: Res<Time>,
     currently_eaten_ghost: Res<CurrentlyEatenGhost>,
-    mut query: Query<(Entity, &Dir, &GhostState, &mut Target, &mut Transform, &Speed)>,
+    mut query: Query<(
+        Entity,
+        &Dir,
+        &GhostState,
+        &mut Target,
+        &mut Transform,
+        &Speed,
+    )>,
 ) {
     for (entity, direction, state, mut target, mut transform, speed) in query.iter_mut() {
-        if entity == **currently_eaten_ghost || *state != Eaten { continue; }
+        if entity == **currently_eaten_ghost || *state != Eaten {
+            continue;
+        }
         move_ghost(&time, direction, &mut target, &mut transform, speed)
     }
 }
 
-fn move_ghost(time: &Time, direction: &Dir, target: &mut Target, transform: &mut Transform, speed: &Speed) {
+fn move_ghost(
+    time: &Time,
+    direction: &Dir,
+    target: &mut Target,
+    transform: &mut Transform,
+    speed: &Speed,
+) {
     if target.is_not_set() {
         return;
     }

@@ -1,25 +1,22 @@
-use bevy::prelude::*;
+use crate::core::prelude::*;
 use crate::game::edibles::dots::DotPlugin;
 use crate::game::edibles::energizer::EnergizerPlugin;
 use crate::game::edibles::fruit::FruitPlugin;
-use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub mod dots;
-pub mod fruit;
 pub mod energizer;
+pub mod fruit;
 
 pub(in crate::game) struct EdiblePlugin;
 
 impl Plugin for EdiblePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugins((
-                DotPlugin,
-                EnergizerPlugin,
-                FruitPlugin
-            ))
-            .add_systems(Update, check_if_all_edibles_eaten.run_if(in_state(Game(Running))))
-        ;
+        app.add_plugins((DotPlugin, EnergizerPlugin, FruitPlugin))
+            .add_systems(
+                Update,
+                check_if_all_edibles_eaten.run_if(in_state(Game(Running))),
+            );
     }
 }
 

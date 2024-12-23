@@ -1,6 +1,6 @@
 use std::env;
-use std::path::{Path, PathBuf};
 use std::fs::{read_dir, write};
+use std::path::{Path, PathBuf};
 
 fn main() {
     println!("cargo:rerun-if-changed=src/");
@@ -14,10 +14,7 @@ fn create_asset_paths() {
     let paths = get_asset_paths("./assets");
     let constant_string = paths_to_string(paths);
 
-    write(
-        &dest_path,
-        constant_string
-    ).unwrap();
+    write(&dest_path, constant_string).unwrap();
 }
 
 fn get_asset_paths<P: AsRef<Path>>(path: P) -> Vec<PathBuf> {
@@ -37,7 +34,8 @@ fn get_asset_paths<P: AsRef<Path>>(path: P) -> Vec<PathBuf> {
 }
 
 fn paths_to_string(paths: Vec<PathBuf>) -> String {
-    let joined_paths = paths.into_iter()
+    let joined_paths = paths
+        .into_iter()
         .map(|p| p.to_str().unwrap().to_string())
         .map(|s| s.replace("\\", "/"))
         .map(|s| s.replace("./assets/", ""))

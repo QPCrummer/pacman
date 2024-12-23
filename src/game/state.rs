@@ -10,19 +10,18 @@ pub(in crate::game) struct StatePlugin;
 
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                Update,
-                update_state
-                    .in_set(SetState)
-                    .run_if(in_state(Game(Running))),
-            )
-            .add_systems(
-                Update,
-                update_state_on_eaten_pause
-                    .in_set(SetState)
-                    .run_if(in_state(Game(GhostEatenPause))))
-        ;
+        app.add_systems(
+            Update,
+            update_state
+                .in_set(SetState)
+                .run_if(in_state(Game(Running))),
+        )
+        .add_systems(
+            Update,
+            update_state_on_eaten_pause
+                .in_set(SetState)
+                .run_if(in_state(Game(GhostEatenPause))),
+        );
     }
 }
 
@@ -78,7 +77,7 @@ fn update_state_on_eaten_pause(
         match *components.state {
             Spawned => process_spawned(&schedule, &mut components, &spawns_query),
             Eaten => process_eaten(&mut components, &spawns_query),
-            _ => continue
+            _ => continue,
         }
     }
 }
@@ -96,22 +95,19 @@ fn energizer_over(mut events: EventReader<EnergizerOver>) -> bool {
 }
 
 fn ghost_eaten(entity: Entity, eaten_events: &[GhostWasEaten]) -> bool {
-    eaten_events
-        .iter()
-        .filter(|e| e.0 == entity)
-        .count() > 0
+    eaten_events.iter().filter(|e| e.0 == entity).count() > 0
 }
 
-fn process_energizer_eaten(
-    components: &mut StateUpdateComponentsItem
-) {
+fn process_energizer_eaten(components: &mut StateUpdateComponentsItem) {
     let target_coordinates = if components.target.is_set() {
         components.target.get()
     } else {
         components.transform.translation
     };
     let target_position = Pos::from_vec3(target_coordinates);
-    let coordinates_ghost_came_from = target_position.neighbour_in_direction(components.direction.opposite()).to_vec3(0.0);
+    let coordinates_ghost_came_from = target_position
+        .neighbour_in_direction(components.direction.opposite())
+        .to_vec3(0.0);
 
     *components.state = Frightened;
     *components.direction = components.direction.opposite();
@@ -137,10 +133,7 @@ fn process_spawned(
 
 /// If the current schedule is different to the ghosts state, the new state is the current schedule and
 /// the ghost reverses his location.
-fn process_scatter_chase(
-    schedule: &GhostSchedule,
-    components: &mut StateUpdateComponentsItem,
-) {
+fn process_scatter_chase(schedule: &GhostSchedule, components: &mut StateUpdateComponentsItem) {
     let schedule_state = schedule.current_state();
 
     if let (Chase, Scatter) | (Scatter, Chase) = (*components.state, schedule_state) {
@@ -153,7 +146,9 @@ fn process_scatter_chase(
         };
 
         let target_position = Pos::from_vec3(target_coordinates);
-        let coordinates_ghost_came_from = target_position.neighbour_in_direction(components.direction.opposite()).to_vec3(0.0);
+        let coordinates_ghost_came_from = target_position
+            .neighbour_in_direction(components.direction.opposite())
+            .to_vec3(0.0);
 
         *components.direction = components.direction.opposite();
         components.target.set(coordinates_ghost_came_from);
@@ -170,15 +165,12 @@ fn process_frightened(
     }
 }
 
-fn process_eaten(
-    components: &mut StateUpdateComponentsItem,
-    spawns_query: &Query<&GhostSpawn>,
-) {
+fn process_eaten(components: &mut StateUpdateComponentsItem, spawns_query: &Query<&GhostSpawn>) {
     let respawn = spawns_query
         .iter()
         .find(|spawn| match *components.ghost {
             Blinky => spawn.ghost == Pinky,
-            _ => spawn.ghost == *components.ghost
+            _ => spawn.ghost == *components.ghost,
         })
         .expect("every ghost should have a spawn");
     let coordinates = components.transform.translation;

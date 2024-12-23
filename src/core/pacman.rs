@@ -4,9 +4,7 @@ pub(super) struct PacmanPlugin;
 
 impl Plugin for PacmanPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Pacman>()
-        ;
+        app.register_type::<Pacman>();
     }
 }
 

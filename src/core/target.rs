@@ -4,9 +4,7 @@ pub(super) struct TargetPlugin;
 
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Target>()
-        ;
+        app.register_type::<Target>();
     }
 }
 

@@ -1,25 +1,16 @@
 use crate::core::prelude::*;
 use crate::game::music;
 use crate::game::ui::main_menu_screen;
+use crate::game::ui::settings_screen::Config;
 use bevy::prelude::*;
 use vleue_kinetoscope::AnimatedImageBundle;
-use crate::game::ui::settings_screen::Config;
 
 pub(super) struct CutsceneScreenPlugin;
 
 impl Plugin for CutsceneScreenPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(Cutscene)), (
-                    spawn_screens,
-                )
-            )
-            .add_systems(
-                OnExit(Game(Cutscene)),
-                despawn_screens
-            )
-        ;
+        app.add_systems(OnEnter(Game(Cutscene)), (spawn_screens,))
+            .add_systems(OnExit(Game(Cutscene)), despawn_screens);
     }
 }
 
@@ -40,7 +31,11 @@ fn spawn_screens(
         AnimatedImageBundle {
             animated_image: asset_server.load(format!("cutscene/cutscene{}.gif", cutscene)),
             transform: Transform {
-                translation: Vec3::new(main_menu_screen::get_relative_x(0.7), main_menu_screen::get_relative_y(0.01), 301.0), // Slightly above tunnel rendering
+                translation: Vec3::new(
+                    main_menu_screen::get_relative_x(0.7),
+                    main_menu_screen::get_relative_y(0.01),
+                    301.0,
+                ), // Slightly above tunnel rendering
                 scale: Vec3::splat(0.5),
                 ..Default::default()
             },
@@ -76,10 +71,7 @@ pub fn get_cutscene(level: Res<Level>) -> i8 {
     }
 }
 
-fn despawn_screens(
-    mut commands: Commands,
-    query: Query<Entity, With<CutsceneComponent>>,
-) {
+fn despawn_screens(mut commands: Commands, query: Query<Entity, With<CutsceneComponent>>) {
     for e in &query {
         commands.entity(e).despawn();
     }

@@ -1,21 +1,13 @@
-use bevy::prelude::*;
-use bevy::prelude::Val::Percent;
 use crate::core::prelude::*;
+use bevy::prelude::Val::Percent;
+use bevy::prelude::*;
 
 pub(super) struct ReadyScreenPlugin;
 
 impl Plugin for ReadyScreenPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(Ready)),
-                spawn_screen
-            )
-            .add_systems(
-                OnExit(Game(Ready)),
-                despawn_screen
-            )
-        ;
+        app.add_systems(OnEnter(Game(Ready)), spawn_screen)
+            .add_systems(OnExit(Game(Ready)), despawn_screen);
     }
 }
 
@@ -23,10 +15,7 @@ impl Plugin for ReadyScreenPlugin {
 #[derive(Component)]
 struct ReadyScreen;
 
-fn spawn_screen(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+fn spawn_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Name::new("ReadyScreen"),
         ReadyScreen,
@@ -37,7 +26,8 @@ fn spawn_screen(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 1.0, 0.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(45.0),
             top: Percent(53.0),
@@ -46,10 +36,7 @@ fn spawn_screen(
     ));
 }
 
-fn despawn_screen(
-    mut commands: Commands,
-    query: Query<Entity, With<ReadyScreen>>,
-) {
+fn despawn_screen(mut commands: Commands, query: Query<Entity, With<ReadyScreen>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn()
     }

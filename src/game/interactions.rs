@@ -1,23 +1,21 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub(in crate::game) struct InteractionsPlugin;
 
 impl Plugin for InteractionsPlugin {
     fn build(&self, app: &mut App) {
-        app
-
-            .add_systems(
-                Update,
-                (
-                    pacman_hits_ghost,
-                    pacman_eat_dot,
-                    pacman_eat_energizer,
-                    eat_fruit_when_pacman_touches_it
-                )
-                    .in_set(DetectIntersectionsWithPacman)
-                    .run_if(in_state(Game(Running))))
-        ;
+        app.add_systems(
+            Update,
+            (
+                pacman_hits_ghost,
+                pacman_eat_dot,
+                pacman_eat_energizer,
+                eat_fruit_when_pacman_touches_it,
+            )
+                .in_set(DetectIntersectionsWithPacman)
+                .run_if(in_state(Game(Running))),
+        );
     }
 }
 

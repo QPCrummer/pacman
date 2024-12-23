@@ -1,37 +1,24 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub struct FruitPlugin;
 
 impl Plugin for FruitPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                Update,
-                (
-                    spawn_fruit_when_dot_limit_reached
-                        .in_set(ProcessIntersectionsWithPacman),
-                    update_despawn_timer,
-                    despawn_fruit_if_timer_exceeded,
-                    play_fruit_eaten_sound_when_fruit_was_eaten
-                        .in_set(ProcessIntersectionsWithPacman),
-                    reset_fruit_despawn_timer_when_level_changed
-                )
-                    .run_if(in_state(Game(Running))),
+        app.add_systems(
+            Update,
+            (
+                spawn_fruit_when_dot_limit_reached.in_set(ProcessIntersectionsWithPacman),
+                update_despawn_timer,
+                despawn_fruit_if_timer_exceeded,
+                play_fruit_eaten_sound_when_fruit_was_eaten.in_set(ProcessIntersectionsWithPacman),
+                reset_fruit_despawn_timer_when_level_changed,
             )
-            .add_systems(
-                OnEnter(Game(PacmanHit)),
-                despawn_fruit_and_timer
-            )
-            .add_systems(
-                OnEnter(Game(LevelTransition)),
-                despawn_fruit_and_timer
-            )
-            .add_systems(
-                OnExit(Game(GameOver)),
-                despawn_fruit_and_timer
-            )
-        ;
+                .run_if(in_state(Game(Running))),
+        )
+        .add_systems(OnEnter(Game(PacmanHit)), despawn_fruit_and_timer)
+        .add_systems(OnEnter(Game(LevelTransition)), despawn_fruit_and_timer)
+        .add_systems(OnExit(Game(GameOver)), despawn_fruit_and_timer);
     }
 }
 
@@ -64,7 +51,7 @@ fn spawn_fruit_when_dot_limit_reached(
                         ..Default::default()
                     },
                     fruit,
-                    Edible
+                    Edible,
                 ));
             }
             commands.insert_resource(FruitDespawnTimer::new());
@@ -73,10 +60,7 @@ fn spawn_fruit_when_dot_limit_reached(
 }
 
 /// Update the despawn timer with delta time.
-fn update_despawn_timer(
-    time: Res<Time>,
-    mut despawn_timer_opt: Option<ResMut<FruitDespawnTimer>>,
-) {
+fn update_despawn_timer(time: Res<Time>, mut despawn_timer_opt: Option<ResMut<FruitDespawnTimer>>) {
     if let Some(ref mut despawn_timer) = despawn_timer_opt {
         despawn_timer.tick(time.delta());
     }
@@ -99,19 +83,13 @@ fn despawn_fruit_if_timer_exceeded(
 }
 
 /// If the level changed, remove the timer and reset the dot counter.
-fn reset_fruit_despawn_timer_when_level_changed(
-    mut commands: Commands,
-    level: Res<Level>,
-) {
+fn reset_fruit_despawn_timer_when_level_changed(mut commands: Commands, level: Res<Level>) {
     if level.is_changed() {
         commands.remove_resource::<FruitDespawnTimer>();
     }
 }
 
-fn despawn_fruit_and_timer(
-    mut commands: Commands,
-    query: Query<Entity, With<Fruit>>,
-) {
+fn despawn_fruit_and_timer(mut commands: Commands, query: Query<Entity, With<Fruit>>) {
     commands.remove_resource::<FruitDespawnTimer>();
 
     for e in &query {
@@ -131,7 +109,7 @@ fn play_fruit_eaten_sound_when_fruit_was_eaten(
             AudioBundle {
                 source: asset_server.load("sounds/fruit_eaten.ogg"),
                 ..default()
-            }
+            },
         ));
     }
 }

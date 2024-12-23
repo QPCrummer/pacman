@@ -1,7 +1,7 @@
+use crate::core::prelude::*;
 use bevy::prelude::*;
 use pad::Direction;
 use pad::Direction::*;
-use crate::core::prelude::*;
 
 /// The direction some entity is currently moving to
 #[derive(Component, Reflect, Copy, Clone, Debug, Default, Eq, PartialEq)]
@@ -10,7 +10,7 @@ pub enum Dir {
     Right,
     Left,
     Up,
-    Down
+    Down,
 }
 
 impl Dir {
@@ -20,7 +20,7 @@ impl Dir {
             XM => Left,
             YP => Up,
             YM => Down,
-            _ => panic!("invalid direction")
+            _ => panic!("invalid direction"),
         }
     }
 
@@ -29,7 +29,7 @@ impl Dir {
             Right => Left,
             Left => Right,
             Up => Down,
-            Down => Up
+            Down => Up,
         }
     }
 
@@ -38,7 +38,7 @@ impl Dir {
             Right => XP,
             Left => XM,
             Up => YP,
-            Down => YM
+            Down => YM,
         }
     }
 }

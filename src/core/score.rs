@@ -1,22 +1,20 @@
+use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
-use bevy::prelude::*;
-use serde::{Deserialize, Serialize};
 
 pub(super) struct ScorePlugin;
 
 impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_event::<HighScoreWasBeaten>()
+        app.add_event::<HighScoreWasBeaten>()
             .register_type::<Score>()
             .register_type::<HighScore>()
             .register_type::<HighScoreWasBeaten>()
             .register_type::<ScoreText>()
             .register_type::<ScoreTextTimer>()
-            .register_type::<EatenGhostCounter>()
-        ;
+            .register_type::<EatenGhostCounter>();
     }
 }
 
@@ -37,7 +35,7 @@ pub struct HighScore {
     pub score: usize,
     /// Tells if the high score was beaten in the current game. This is necessary to tell if the player
     /// has just beaten the score or if the player broke it and continues to collect points.
-    pub was_beaten: bool
+    pub was_beaten: bool,
 }
 
 const HIGH_SCORE_PATH: &str = "./high_score.json";
@@ -54,20 +52,21 @@ impl HighScoreSerializable {
         };
 
         // Serialize the high score to a JSON string
-        let json = serde_json::to_string(&high_score_serializable).expect("Failed to serialize high score");
+        let json = serde_json::to_string(&high_score_serializable)
+            .expect("Failed to serialize high score");
 
         // Create or open the file at the specified path
         let path = Path::new(HIGH_SCORE_PATH);
-        let mut file =
-            OpenOptions::new()
-                .write(true)
-                .create(true)
-                .truncate(true) // TODO Only overwrite the current user's data
-                .open(&path)
-                .expect("Failed to create or open the high score file");
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true) // TODO Only overwrite the current user's data
+            .open(&path)
+            .expect("Failed to create or open the high score file");
 
         // Write the JSON string to the file
-        file.write_all(json.as_bytes()).expect("Failed to write high score to file");
+        file.write_all(json.as_bytes())
+            .expect("Failed to write high score to file");
     }
 
     pub fn load() -> HighScore {
@@ -81,15 +80,12 @@ impl HighScoreSerializable {
         };
 
         // Deserialize the JSON data from the file into a HighScoreSerializable instance
-        let high_score: HighScoreSerializable = serde_json::from_reader(file).unwrap_or(
-            HighScoreSerializable {
-                score: 0,
-            }
-        );
+        let high_score: HighScoreSerializable =
+            serde_json::from_reader(file).unwrap_or(HighScoreSerializable { score: 0 });
 
         HighScore {
             score: high_score.score,
-            was_beaten: false
+            was_beaten: false,
         }
     }
 }

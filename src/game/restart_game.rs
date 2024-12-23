@@ -1,20 +1,16 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub(super) struct RestartGamePlugin;
 
 impl Plugin for RestartGamePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                Update,
-                send_restart_event_on_key_press.run_if(in_state(Game(GameOver)))
-            )
-        ;
+        app.add_systems(
+            Update,
+            send_restart_event_on_key_press.run_if(in_state(Game(GameOver))),
+        );
     }
 }
-
-
 
 fn send_restart_event_on_key_press(
     keyboard_input: Res<ButtonInput<KeyCode>>,

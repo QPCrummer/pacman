@@ -8,15 +8,10 @@ pub(in crate::game) struct SpeedPlugin;
 
 impl Plugin for SpeedPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                Update,
-                (
-                    update_ghost_speed,
-                    update_pacman_speed
-                ).run_if(in_state(Game(Running))),
-            )
-        ;
+        app.add_systems(
+            Update,
+            (update_ghost_speed, update_pacman_speed).run_if(in_state(Game(Running))),
+        );
     }
 }
 
@@ -39,8 +34,21 @@ fn update_ghost_speed(
 ) {
     for mut comps in ghost_query.iter_mut() {
         match *comps.ghost {
-            Blinky => update_blinky_speed(&level, &specs_per_level, &eaten_dots, &mut comps, &tunnel_query, &config),
-            _ => update_non_blinky_speed(&level, &specs_per_level, &mut comps, &tunnel_query, &config)
+            Blinky => update_blinky_speed(
+                &level,
+                &specs_per_level,
+                &eaten_dots,
+                &mut comps,
+                &tunnel_query,
+                &config,
+            ),
+            _ => update_non_blinky_speed(
+                &level,
+                &specs_per_level,
+                &mut comps,
+                &tunnel_query,
+                &config,
+            ),
         }
     }
 }
@@ -62,15 +70,25 @@ fn update_blinky_speed(
     if *comps.state == Eaten {
         *comps.speed = Speed(GHOST_BASE_SPEED * 2.0)
     } else if is_in_tunnel(&comps.transform, tunnel_query) {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_tunnel_speed_modifier * config.ghost_tunnel_speed_modifier); // Additionally modifier from config
+        *comps.speed = Speed(
+            GHOST_BASE_SPEED
+                * spec.ghost_tunnel_speed_modifier
+                * config.ghost_tunnel_speed_modifier,
+        ); // Additionally modifier from config
     } else if *comps.state == Frightened {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_frightened_speed_modifier * config.frightened_ghost_speed_modifier); // Additionally modifier from config
+        *comps.speed = Speed(
+            GHOST_BASE_SPEED
+                * spec.ghost_frightened_speed_modifier
+                * config.frightened_ghost_speed_modifier,
+        ); // Additionally modifier from config
     } else if remaining_dots <= spec.elroy_2_dots_left {
         *comps.speed = Speed(GHOST_BASE_SPEED * spec.elroy_2_speed_modifier)
     } else if remaining_dots <= spec.elroy_1_dots_left {
         *comps.speed = Speed(GHOST_BASE_SPEED * spec.elroy_1_speed_modifier)
     } else {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier * config.ghost_speed_modifier);  // Additionally modifier from config
+        *comps.speed = Speed(
+            GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier * config.ghost_speed_modifier,
+        ); // Additionally modifier from config
     }
 }
 
@@ -86,11 +104,21 @@ fn update_non_blinky_speed(
     if *comps.state == Eaten {
         *comps.speed = Speed(GHOST_BASE_SPEED * 2.0)
     } else if is_in_tunnel(&comps.transform, tunnel_query) {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_tunnel_speed_modifier * config.ghost_tunnel_speed_modifier);  // Additionally modifier from config
+        *comps.speed = Speed(
+            GHOST_BASE_SPEED
+                * spec.ghost_tunnel_speed_modifier
+                * config.ghost_tunnel_speed_modifier,
+        ); // Additionally modifier from config
     } else if *comps.state == Frightened {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_frightened_speed_modifier * config.frightened_ghost_speed_modifier); // Additionally modifier from config
+        *comps.speed = Speed(
+            GHOST_BASE_SPEED
+                * spec.ghost_frightened_speed_modifier
+                * config.frightened_ghost_speed_modifier,
+        ); // Additionally modifier from config
     } else {
-        *comps.speed = Speed(GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier * config.ghost_speed_modifier); // Additionally modifier from config
+        *comps.speed = Speed(
+            GHOST_BASE_SPEED * spec.ghost_normal_speed_modifier * config.ghost_speed_modifier,
+        ); // Additionally modifier from config
     }
 }
 
@@ -98,13 +126,11 @@ fn is_in_tunnel(
     ghost_transform: &Transform,
     tunnel_query: &Query<&Transform, Or<(With<Tunnel>, With<TunnelHallway>)>>,
 ) -> bool {
-    tunnel_query
-        .iter()
-        .any(|transform| {
-            let tunnel_pos = Pos::from_vec3(transform.translation);
-            let ghost_pos = Pos::from_vec3(ghost_transform.translation);
-            tunnel_pos == ghost_pos
-        })
+    tunnel_query.iter().any(|transform| {
+        let tunnel_pos = Pos::from_vec3(transform.translation);
+        let ghost_pos = Pos::from_vec3(ghost_transform.translation);
+        tunnel_pos == ghost_pos
+    })
 }
 
 fn update_pacman_speed(
@@ -118,9 +144,17 @@ fn update_pacman_speed(
         let spec = specs_per_level.get_for(&level);
 
         if energizer_timer.is_some() {
-            *speed = Speed(PACMAN_BASE_SPEED * spec.pacman_frightened_speed_modifier * config.pacman_speed_modifier); // Additional modifier from config
+            *speed = Speed(
+                PACMAN_BASE_SPEED
+                    * spec.pacman_frightened_speed_modifier
+                    * config.pacman_speed_modifier,
+            ); // Additional modifier from config
         } else {
-            *speed = Speed(PACMAN_BASE_SPEED * spec.pacman_normal_speed_modifier * config.pacman_speed_modifier); // Additional modifier from config
+            *speed = Speed(
+                PACMAN_BASE_SPEED
+                    * spec.pacman_normal_speed_modifier
+                    * config.pacman_speed_modifier,
+            ); // Additional modifier from config
         }
     }
 }

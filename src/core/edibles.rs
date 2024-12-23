@@ -8,8 +8,7 @@ pub(super) struct EdiblesPlugin;
 
 impl Plugin for EdiblesPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Edible>()
+        app.register_type::<Edible>()
             .register_type::<Dots>()
             .register_type::<Dot>()
             .register_type::<EatenDots>()
@@ -20,8 +19,7 @@ impl Plugin for EdiblesPlugin {
             .register_type::<EnergizerOver>()
             .register_type::<EnergizerTimer>()
             .add_event::<EAllEdiblesEaten>()
-            .add_event::<EnergizerOver>()
-        ;
+            .add_event::<EnergizerOver>();
     }
 }
 
@@ -102,16 +100,19 @@ impl FruitDespawnTimer {
 }
 
 pub fn get_texture_for_fruit(fruit: &Fruit, asset_server: &AssetServer) -> Handle<Image> {
-    asset_server.load(&format!("textures/fruits/{}.png", match fruit {
-        Cherry => "cherry",
-        Strawberry => "strawberry",
-        Peach => "peach",
-        Apple => "apple",
-        Grapes => "grapes",
-        Galaxian => "galaxian",
-        Bell => "bell",
-        Key => "key"
-    }))
+    asset_server.load(&format!(
+        "textures/fruits/{}.png",
+        match fruit {
+            Cherry => "cherry",
+            Strawberry => "strawberry",
+            Peach => "peach",
+            Apple => "apple",
+            Grapes => "grapes",
+            Galaxian => "galaxian",
+            Bell => "bell",
+            Key => "key",
+        }
+    ))
 }
 
 /// Parent component for all energizer (for organization only)
@@ -135,7 +136,7 @@ pub struct EnergizerTimer {
 impl EnergizerTimer {
     pub fn start(seconds: f32) -> Self {
         EnergizerTimer {
-            timer: Timer::from_seconds(seconds, TimerMode::Once)
+            timer: Timer::from_seconds(seconds, TimerMode::Once),
         }
     }
 

@@ -1,16 +1,14 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub(super) struct MusicPlugin;
 
 impl Plugin for MusicPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<BackgroundTrack>()
+        app.register_type::<BackgroundTrack>()
             .register_type::<SirenBackground>()
             .register_type::<FrightenedBackground>()
-            .register_type::<BackgroundMusic>()
-        ;
+            .register_type::<BackgroundMusic>();
     }
 }
 

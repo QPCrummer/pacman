@@ -1,14 +1,12 @@
-use std::collections::HashMap;
 use bevy::prelude::*;
+use std::collections::HashMap;
 use std::time::Duration;
 
 pub struct AnimationPlugin;
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(Update, update_entities_with_animations)
-        ;
+        app.add_systems(Update, update_entities_with_animations);
     }
 }
 
@@ -37,7 +35,7 @@ fn update_entities_with_animations(
 #[derive(Clone)]
 pub enum Animation {
     SingleTexture {
-        texture: Handle<Image>
+        texture: Handle<Image>,
     },
     TextureList {
         current_texture_index: usize,
@@ -56,15 +54,20 @@ impl Animation {
     }
 
     /// Create an animation from an iterator of image handles.
-    pub fn from_textures(duration_secs: f32, repeating: bool, textures: impl IntoIterator<Item=Handle<Image>>) -> Self {
-        let textures = textures
-            .into_iter()
-            .collect::<Vec<_>>();
+    pub fn from_textures(
+        duration_secs: f32,
+        repeating: bool,
+        textures: impl IntoIterator<Item = Handle<Image>>,
+    ) -> Self {
+        let textures = textures.into_iter().collect::<Vec<_>>();
         let texture_display_time = duration_secs / textures.len() as f32;
 
         Animation::TextureList {
             current_texture_index: 0,
-            timer: Timer::new(Duration::from_secs_f32(texture_display_time), TimerMode::Repeating),
+            timer: Timer::new(
+                Duration::from_secs_f32(texture_display_time),
+                TimerMode::Repeating,
+            ),
             repeating,
             textures,
         }
@@ -81,7 +84,13 @@ impl Animation {
     pub fn update(&mut self, delta: Duration) {
         let (current_texture_index, timer, repeating, num_textures) = match self {
             Animation::SingleTexture { .. } => return,
-            Animation::TextureList { ref mut current_texture_index, timer, repeating, textures, .. } => (current_texture_index, timer, repeating, textures.len()),
+            Animation::TextureList {
+                ref mut current_texture_index,
+                timer,
+                repeating,
+                textures,
+                ..
+            } => (current_texture_index, timer, repeating, textures.len()),
         };
 
         timer.tick(delta);
@@ -91,7 +100,7 @@ impl Animation {
             match (repeating, at_last_index) {
                 (true, true) => *current_texture_index = 0,
                 (_, false) => *current_texture_index += 1,
-                (false, true) => ()
+                (false, true) => (),
             }
         }
     }
@@ -99,7 +108,11 @@ impl Animation {
     pub fn texture(&self) -> Handle<Image> {
         match self {
             Animation::SingleTexture { texture } => texture.clone(),
-            Animation::TextureList { current_texture_index, textures, .. } => textures.get(*current_texture_index).unwrap().clone(),
+            Animation::TextureList {
+                current_texture_index,
+                textures,
+                ..
+            } => textures.get(*current_texture_index).unwrap().clone(),
         }
     }
 
@@ -109,7 +122,11 @@ impl Animation {
     pub fn reset(&mut self) {
         let (current_texture_index, timer) = match self {
             Animation::SingleTexture { .. } => return,
-            Animation::TextureList { ref mut current_texture_index, timer, .. } => (current_texture_index, timer),
+            Animation::TextureList {
+                ref mut current_texture_index,
+                timer,
+                ..
+            } => (current_texture_index, timer),
         };
 
         timer.reset();
@@ -151,24 +168,34 @@ impl Animation {
 pub struct Animations {
     atlas: HashMap<String, Animation>,
     current: String,
-    running: bool
+    running: bool,
 }
 
 impl Animations {
-    pub fn new<C: ToString, S: ToString>(animations: impl IntoIterator<Item=(S, Animation)>, current: C) -> Self {
+    pub fn new<C: ToString, S: ToString>(
+        animations: impl IntoIterator<Item = (S, Animation)>,
+        current: C,
+    ) -> Self {
         Animations {
-            atlas: animations.into_iter().map(|(s, anims)| (s.to_string(), anims)).collect(),
+            atlas: animations
+                .into_iter()
+                .map(|(s, anims)| (s.to_string(), anims))
+                .collect(),
             current: current.to_string(),
-            running: true
+            running: true,
         }
     }
 
     pub fn current(&self) -> &Animation {
-        self.atlas.get(&self.current).expect("current set animation is not part of the animation atlas")
+        self.atlas
+            .get(&self.current)
+            .expect("current set animation is not part of the animation atlas")
     }
 
     pub fn current_mut(&mut self) -> &mut Animation {
-        self.atlas.get_mut(&self.current).expect("current set animation is not part of the animation atlas")
+        self.atlas
+            .get_mut(&self.current)
+            .expect("current set animation is not part of the animation atlas")
     }
 
     /// Change the current animation.
@@ -181,7 +208,10 @@ impl Animations {
         let new_current = animation_name.to_string();
 
         if new_current != self.current {
-            self.atlas.get_mut(&new_current).expect("the new selected animation does not exist in the atlas").reset();
+            self.atlas
+                .get_mut(&new_current)
+                .expect("the new selected animation does not exist in the atlas")
+                .reset();
             self.current = new_current;
         }
     }

@@ -1,25 +1,25 @@
-use bevy::prelude::*;
-use bevy_asset_preload::{AssetPreloadPlugin, load_assets};
-use bevy_sprite_sheet::SpriteSheetPlugin;
-use bevy_window_icon::WindowIconPlugin;
-use vleue_kinetoscope::AnimatedImagePlugin;
-use core::prelude::*;
-use crate::core::CorePlugin;
 use crate::core::game_state::MainMenu::Menu;
-use crate::game::GamePlugin;
+use crate::core::CorePlugin;
 use crate::game::ui::settings_screen::Config;
+use crate::game::GamePlugin;
 use crate::map_creator::create_map;
 use crate::spawn::SpawnPlugin;
+use bevy::prelude::*;
+use bevy_asset_preload::{load_assets, AssetPreloadPlugin};
+use bevy_sprite_sheet::SpriteSheetPlugin;
+use bevy_window_icon::WindowIconPlugin;
+use core::prelude::*;
+use vleue_kinetoscope::AnimatedImagePlugin;
 
+mod core;
 pub mod game;
 mod map_creator;
 mod spawn;
-mod core;
 
 fn main() {
     let mut app = App::new();
-    app
-        .add_plugins((DefaultPlugins
+    app.add_plugins((
+        DefaultPlugins
             .set(WindowPlugin {
                 primary_window: Some(Window {
                     resolution: (WINDOW_WIDTH, WINDOW_HEIGHT).into(),
@@ -33,20 +33,23 @@ fn main() {
                 }),
                 ..default()
             })
-            .set(ImagePlugin::default_nearest())
-                      , WindowIconPlugin::new("./assets/icon.png")
-        ))
-        .insert_resource(Config::load().unwrap())
-        .add_plugins(AnimatedImagePlugin)
-        .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
-        .add_plugins((
-            CorePlugin,
-            GamePlugin,
-            SpawnPlugin,
-            AssetPreloadPlugin::load_given_paths(Setup(PreloadAssets), Setup(CreateSpriteSheets), load_assets!()),
-            SpriteSheetPlugin::new(Setup(CreateSpriteSheets), MainMenu(Menu)),
-        ))
-    ;
+            .set(ImagePlugin::default_nearest()),
+        WindowIconPlugin::new("./assets/icon.png"),
+    ))
+    .insert_resource(Config::load().unwrap())
+    .add_plugins(AnimatedImagePlugin)
+    .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
+    .add_plugins((
+        CorePlugin,
+        GamePlugin,
+        SpawnPlugin,
+        AssetPreloadPlugin::load_given_paths(
+            Setup(PreloadAssets),
+            Setup(CreateSpriteSheets),
+            load_assets!(),
+        ),
+        SpriteSheetPlugin::new(Setup(CreateSpriteSheets), MainMenu(Menu)),
+    ));
 
     if should_create_map() {
         create_map(&mut app);

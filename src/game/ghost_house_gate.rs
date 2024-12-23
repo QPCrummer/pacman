@@ -6,36 +6,25 @@ pub(in crate::game) struct GhostHouseGatePlugin;
 
 impl Plugin for GhostHouseGatePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(Start)),
-                create_gate
-            )
+        app.add_systems(OnEnter(Game(Start)), create_gate)
             .add_systems(
                 Update,
                 (
                     update_ghost_house_gate,
-                    increment_counter_when_dot_eaten
-                        .in_set(ProcessIntersectionsWithPacman),
+                    increment_counter_when_dot_eaten.in_set(ProcessIntersectionsWithPacman),
                     switch_to_global_counter_when_pacman_got_killed
-                        .in_set(ProcessIntersectionsWithPacman)
+                        .in_set(ProcessIntersectionsWithPacman),
                 )
-                    .run_if(in_state(Game(Running))))
-        ;
+                    .run_if(in_state(Game(Running))),
+            );
     }
 }
 
-fn create_gate(
-    mut commands: Commands,
-    level: Res<Level>,
-) {
+fn create_gate(mut commands: Commands, level: Res<Level>) {
     commands.insert_resource(GhostHouseGate::new(&level));
 }
 
-fn update_ghost_house_gate(
-    time: Res<Time>,
-    mut ghost_house_gate: ResMut<GhostHouseGate>,
-) {
+fn update_ghost_house_gate(time: Res<Time>, mut ghost_house_gate: ResMut<GhostHouseGate>) {
     ghost_house_gate.update(time.delta())
 }
 
@@ -56,4 +45,3 @@ fn switch_to_global_counter_when_pacman_got_killed(
         ghost_house_gate.switch_to_global_counter()
     }
 }
-

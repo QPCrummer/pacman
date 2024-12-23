@@ -1,7 +1,7 @@
-use bevy::prelude::*;
 use crate::game::ghosts::movement::MovePlugin;
 use crate::game::ghosts::spawn::spawn_ghosts;
 use crate::game::ghosts::textures::{start_ghost_animation, update_ghost_appearance};
+use bevy::prelude::*;
 
 use crate::core::prelude::*;
 use crate::game::move_through_tunnel::GhostPassedTunnel;
@@ -14,37 +14,21 @@ pub(in crate::game) struct GhostPlugin;
 
 impl Plugin for GhostPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugins(MovePlugin)
+        app.add_plugins(MovePlugin)
+            .add_systems(OnEnter(Game(Ready)), spawn_ghosts)
+            .add_systems(OnEnter(Game(Running)), start_ghost_animation)
             .add_systems(
-                OnEnter(Game(Ready)),
-                spawn_ghosts,
-            )
-            .add_systems(
-                OnEnter(Game(Running)),
-                start_ghost_animation,
-            )
-            .add_systems(
-                Update, (
+                Update,
+                (
                     ghost_passed_tunnel,
                     play_ghost_eaten_sound_when_ghost_was_eaten
-                        .in_set(ProcessIntersectionsWithPacman)
+                        .in_set(ProcessIntersectionsWithPacman),
                 )
                     .run_if(in_state(Game(Running))),
             )
-            .add_systems(
-                Update,
-                update_ghost_appearance.run_if(in_game),
-            )
-            .add_systems(
-                OnEnter(Game(PacmanDying)),
-                despawn_ghosts,
-            )
-            .add_systems(
-                OnEnter(Game(LevelTransition)),
-                despawn_ghosts,
-
-            )
+            .add_systems(Update, update_ghost_appearance.run_if(in_game))
+            .add_systems(OnEnter(Game(PacmanDying)), despawn_ghosts)
+            .add_systems(OnEnter(Game(LevelTransition)), despawn_ghosts)
             .add_systems(
                 OnEnter(Game(GhostEatenPause)),
                 set_currently_eaten_ghost_invisible,
@@ -53,10 +37,9 @@ impl Plugin for GhostPlugin {
                 OnExit(Game(GhostEatenPause)),
                 (
                     remove_currently_eaten_ghost,
-                    set_currently_eaten_ghost_visible
+                    set_currently_eaten_ghost_visible,
                 ),
-            )
-        ;
+            );
     }
 }
 
@@ -73,18 +56,13 @@ fn ghost_passed_tunnel(
     }
 }
 
-fn despawn_ghosts(
-    mut commands: Commands,
-    query: Query<Entity, With<Ghost>>,
-) {
+fn despawn_ghosts(mut commands: Commands, query: Query<Entity, With<Ghost>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
 }
 
-fn remove_currently_eaten_ghost(
-    mut commands: Commands
-) {
+fn remove_currently_eaten_ghost(mut commands: Commands) {
     commands.remove_resource::<CurrentlyEatenGhost>()
 }
 
@@ -122,7 +100,7 @@ fn play_ghost_eaten_sound_when_ghost_was_eaten(
             AudioBundle {
                 source: asset_server.load("sounds/ghost_eaten.ogg"),
                 ..default()
-            }
+            },
         ));
     }
 }

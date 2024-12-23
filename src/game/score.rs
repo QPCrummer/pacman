@@ -1,5 +1,5 @@
-use std::time::Duration;
 use bevy::prelude::*;
+use std::time::Duration;
 
 use crate::core::prelude::*;
 
@@ -7,8 +7,7 @@ pub(in crate::game) struct ScorePlugin;
 
 impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(Score(0))
+        app.insert_resource(Score(0))
             .insert_resource(HighScore::new())
             .insert_resource(EatenGhostCounter(0))
             .add_systems(
@@ -16,45 +15,27 @@ impl Plugin for ScorePlugin {
                 (
                     reset_eaten_ghost_counter_when_energizer_is_over,
                     update_score_texts,
-                    add_points_for_eaten_dot
-                        .in_set(ProcessIntersectionsWithPacman),
-                    add_points_for_eaten_energizer
-                        .in_set(ProcessIntersectionsWithPacman),
+                    add_points_for_eaten_dot.in_set(ProcessIntersectionsWithPacman),
+                    add_points_for_eaten_energizer.in_set(ProcessIntersectionsWithPacman),
                     add_points_for_eaten_ghost_and_display_score_text
                         .in_set(ProcessIntersectionsWithPacman),
                     add_points_for_eaten_fruit_and_display_score_text
                         .in_set(ProcessIntersectionsWithPacman),
                     update_high_score,
-                    play_highscore_broken_sound.after(update_high_score)
+                    play_highscore_broken_sound.after(update_high_score),
                 )
                     .run_if(in_state(Game(Running))),
             )
             .add_systems(
                 OnEnter(Game(PacmanHit)),
-                (
-                    despawn_score_texts,
-                    reset_ghost_eaten_counter
-                ),
+                (despawn_score_texts, reset_ghost_eaten_counter),
             )
-            .add_systems(
-                OnExit(Game(GameOver)),
-                (
-                    reset_score,
-                    reset_high_score
-                )
-            )
-            .add_systems(
-                OnEnter(Game(LevelTransition)),
-                reset_ghost_eaten_counter,
-            )
-        ;
+            .add_systems(OnExit(Game(GameOver)), (reset_score, reset_high_score))
+            .add_systems(OnEnter(Game(LevelTransition)), reset_ghost_eaten_counter);
     }
 }
 
-fn add_points_for_eaten_dot(
-    mut score: ResMut<Score>,
-    mut event_reader: EventReader<DotWasEaten>,
-) {
+fn add_points_for_eaten_dot(mut score: ResMut<Score>, mut event_reader: EventReader<DotWasEaten>) {
     for _ in event_reader.read() {
         score.add(POINTS_PER_DOT)
     }
@@ -83,7 +64,13 @@ fn add_points_for_eaten_ghost_and_display_score_text(
 
         let mut coordinates = event.1.translation;
         coordinates.z = TEXT_Z;
-        spawn_score_text(&mut commands, &asset_server, Color::Srgba(Srgba::hex("31FFFF").unwrap()), points, coordinates)
+        spawn_score_text(
+            &mut commands,
+            &asset_server,
+            Color::Srgba(Srgba::hex("31FFFF").unwrap()),
+            points,
+            coordinates,
+        )
     }
 }
 
@@ -96,9 +83,7 @@ fn reset_eaten_ghost_counter_when_energizer_is_over(
     }
 }
 
-fn reset_ghost_eaten_counter(
-    mut eaten_ghost_counter: ResMut<EatenGhostCounter>,
-) {
+fn reset_ghost_eaten_counter(mut eaten_ghost_counter: ResMut<EatenGhostCounter>) {
     **eaten_ghost_counter = 0
 }
 
@@ -119,14 +104,20 @@ fn add_points_for_eaten_fruit_and_display_score_text(
             Grapes => 1000,
             Galaxian => 2000,
             Bell => 3000,
-            Key => 5000
+            Key => 5000,
         };
 
         let mut coordinates = transform.translation;
         coordinates.z = TEXT_Z;
 
         score.add(points);
-        spawn_score_text(&mut commands, &asset_server, Color::Srgba(Srgba::hex("FFBDFF").unwrap()), points, coordinates)
+        spawn_score_text(
+            &mut commands,
+            &asset_server,
+            Color::Srgba(Srgba::hex("FFBDFF").unwrap()),
+            points,
+            coordinates,
+        )
     }
 }
 
@@ -146,13 +137,14 @@ fn spawn_score_text(
                     font_size: 10.0,
                     color,
                 },
-            ).with_justify(JustifyText::Center),
+            )
+            .with_justify(JustifyText::Center),
             transform: Transform::from_translation(coordinates),
             ..Default::default()
         },
         Name::new("ScoreText"),
         ScoreText,
-        ScoreTextTimer(Timer::new(Duration::from_secs(1), TimerMode::Once))
+        ScoreTextTimer(Timer::new(Duration::from_secs(1), TimerMode::Once)),
     ));
 }
 
@@ -201,28 +193,21 @@ fn play_highscore_broken_sound(
             AudioBundle {
                 source: asset_server.load("sounds/high_score.ogg"),
                 ..default()
-            }
+            },
         ));
     }
 }
 
-fn despawn_score_texts(
-    mut commands: Commands,
-    query: Query<Entity, With<ScoreText>>,
-) {
+fn despawn_score_texts(mut commands: Commands, query: Query<Entity, With<ScoreText>>) {
     for e in &query {
         commands.entity(e).despawn()
     }
 }
 
-fn reset_score(
-    mut score: ResMut<Score>
-) {
+fn reset_score(mut score: ResMut<Score>) {
     score.0 = 0;
 }
 
-fn reset_high_score(
-    mut high_score: ResMut<HighScore>
-) {
+fn reset_high_score(mut high_score: ResMut<HighScore>) {
     high_score.was_beaten = false
 }

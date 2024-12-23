@@ -6,11 +6,15 @@ use bevy::app::{App, Plugin, Update};
 use bevy::color::Color;
 use bevy::input::ButtonInput;
 use bevy::prelude::Val::Percent;
-use bevy::prelude::{default, in_state, AssetServer, Commands, Component, Entity, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, PositionType, Query, Res, ResMut, Resource, TextBundle, TextStyle, Visibility, With, Without};
+use bevy::prelude::{
+    default, in_state, AssetServer, Commands, Component, Entity, IntoSystemConfigs, KeyCode,
+    NextState, OnEnter, OnExit, PositionType, Query, Res, ResMut, Resource, TextBundle, TextStyle,
+    Visibility, With, Without,
+};
+use bevy::text::Text;
 use bevy::ui::Style;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use bevy::text::Text;
 
 pub(super) struct SettingsScreenPlugin;
 
@@ -28,21 +32,10 @@ struct Editing(bool);
 
 impl Plugin for SettingsScreenPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(MainMenu(Settings)),
-                (setup, hide_screen,)
-            )
-            .add_systems(
-                OnExit(MainMenu(Settings)),
-                show_screen
-            )
-            .add_systems(
-                Update,
-                check_inputs.run_if(in_state(MainMenu(Settings)))
-            )
-            .insert_resource(Editing(false))
-        ;
+        app.add_systems(OnEnter(MainMenu(Settings)), (setup, hide_screen))
+            .add_systems(OnExit(MainMenu(Settings)), show_screen)
+            .add_systems(Update, check_inputs.run_if(in_state(MainMenu(Settings))))
+            .insert_resource(Editing(false));
     }
 }
 
@@ -50,35 +43,39 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "CONFIGURATION",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 20.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(40.0),
-        top: Percent(5.0),
-        ..default()
-    })));
+            "CONFIGURATION",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 20.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(40.0),
+            top: Percent(5.0),
+            ..default()
+        }),
+    ));
 
     // Background Music
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "BACKGROUND MUSIC                - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(10.0),
-        ..default()
-    })));
+            "BACKGROUND MUSIC                - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(10.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -90,29 +87,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(10.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Game Sounds
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "GAME SOUNDS                     - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(15.0),
-        ..default()
-    })));
+            "GAME SOUNDS                     - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(15.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -124,29 +125,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(15.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Starting Lives
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "STARTING LIVES                  - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(20.0),
-        ..default()
-    })));
+            "STARTING LIVES                  - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(20.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -158,29 +163,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(20.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Starting Level
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "STARTING LEVEL                  - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(25.0),
-        ..default()
-    })));
+            "STARTING LEVEL                  - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(25.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -192,29 +201,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(25.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Pacman Speed
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "PACMAN SPEED MODIFIER           - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(30.0),
-        ..default()
-    })));
+            "PACMAN SPEED MODIFIER           - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(30.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -226,29 +239,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(30.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Ghost Speed
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "GHOST SPEED MODIFIER            - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(35.0),
-        ..default()
-    })));
+            "GHOST SPEED MODIFIER            - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(35.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -260,29 +277,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(35.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Ghost Tunnel Speed
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "GHOST TUNNEL SPEED MODIFIER     - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(40.0),
-        ..default()
-    })));
+            "GHOST TUNNEL SPEED MODIFIER     - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(40.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -294,29 +315,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(40.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Frightened Ghost Speed
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "FRIGHTENED GHOST SPEED MODIFIER - ",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 10.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(25.0),
-        top: Percent(45.0),
-        ..default()
-    })));
+            "FRIGHTENED GHOST SPEED MODIFIER - ",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 10.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(25.0),
+            top: Percent(45.0),
+            ..default()
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -328,12 +353,14 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(55.0),
             top: Percent(45.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Controls
     commands.spawn((
@@ -345,12 +372,14 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(40.0),
             top: Percent(70.0),
             ..default()
-        })));
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -361,12 +390,14 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(40.0),
             top: Percent(73.0),
             ..default()
-        })));
+        }),
+    ));
 
     commands.spawn((
         SettingsScreen,
@@ -377,29 +408,33 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(40.0),
             top: Percent(76.0),
             ..default()
-        })));
+        }),
+    ));
 
     // Escape message
     commands.spawn((
         SettingsScreen,
         TextBundle::from_section(
-        "PRESS ESCAPE TO EXIT",
-        TextStyle {
-            font: asset_server.load(FONT),
-            font_size: 15.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
-        },
-    ).with_style(Style {
-        position_type: PositionType::Absolute,
-        left: Percent(40.0),
-        top: Percent(80.0),
-        ..default()
-    })));
+            "PRESS ESCAPE TO EXIT",
+            TextStyle {
+                font: asset_server.load(FONT),
+                font_size: 15.0,
+                color: Color::srgb(1.0, 1.0, 1.0),
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Percent(40.0),
+            top: Percent(80.0),
+            ..default()
+        }),
+    ));
 
     // Cursor
     commands.spawn((
@@ -412,12 +447,14 @@ fn setup(mut commands: Commands, config: ResMut<Config>, asset_server: Res<Asset
                 font_size: 10.0,
                 color: Color::srgb(1.0, 1.0, 0.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(20.0),
             top: Percent(10.0),
             ..default()
-        })));
+        }),
+    ));
 }
 
 const CONFIG_PATH: &str = "./config.json";
@@ -516,10 +553,7 @@ fn check_inputs(
     }
 }
 
-fn despawn_screen(
-    mut commands: &mut Commands,
-    query: Query<Entity, With<SettingsScreen>>,
-) {
+fn despawn_screen(commands: &mut Commands, query: Query<Entity, With<SettingsScreen>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
@@ -541,9 +575,7 @@ fn show_screen(
     }
 }
 
-fn positive_iterator_cursor(
-    mut query: Query<(&Cursor, &mut Style)>,
-) {
+fn positive_iterator_cursor(mut query: Query<(&Cursor, &mut Style)>) {
     for (_cursor, mut style) in query.iter_mut() {
         if let Percent(current_top) = style.top {
             // Increment the y position by the interval
@@ -559,9 +591,7 @@ fn positive_iterator_cursor(
     }
 }
 
-fn negative_iterator_cursor(
-    mut query: Query<(&Cursor, &mut Style)>,
-) {
+fn negative_iterator_cursor(mut query: Query<(&Cursor, &mut Style)>) {
     for (_cursor, mut style) in query.iter_mut() {
         if let Percent(current_top) = style.top {
             // Decrement the y position by the interval
@@ -577,10 +607,7 @@ fn negative_iterator_cursor(
     }
 }
 
-fn change_cursor_color(
-    mut query: Query<(&Cursor, &mut Text)>,
-    editing: bool,
-) {
+fn change_cursor_color(mut query: Query<(&Cursor, &mut Text)>, editing: bool) {
     for (_cursor, mut text) in query.iter_mut() {
         text.sections[0].style.color = if editing {
             Color::srgb(1.0, 0.0, 0.0)
@@ -695,7 +722,8 @@ fn change_config_value(
                         value_of_float(config.ghost_tunnel_speed_modifier),
                     );
                 }
-                _ => { //45.0
+                _ => {
+                    //45.0
                     if increment {
                         if config.frightened_ghost_speed_modifier < 10.0 {
                             config.frightened_ghost_speed_modifier += 0.01;
@@ -729,7 +757,7 @@ fn value_of_float(value: f32) -> String {
 }
 
 fn update_config_value_text(
-    mut value_query: &mut Query<(&ConfigVal, &mut Text, &Style), Without<Cursor>>,
+    value_query: &mut Query<(&ConfigVal, &mut Text, &Style), Without<Cursor>>,
     cursor_y_value: f32,
     new_config_val: String,
 ) {

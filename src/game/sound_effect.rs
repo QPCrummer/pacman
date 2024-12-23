@@ -1,16 +1,11 @@
-use bevy::prelude::*;
 use crate::core::prelude::*;
+use bevy::prelude::*;
 
 pub(super) struct SoundEffectPlugin;
 
 impl Plugin for SoundEffectPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                Update,
-                update_sound_effects
-            )
-        ;
+        app.add_systems(Update, update_sound_effects);
     }
 }
 
@@ -21,7 +16,7 @@ impl Plugin for SoundEffectPlugin {
 fn update_sound_effects(
     mut commands: Commands,
     time: Res<Time>,
-    mut sounds: Query<(Entity, &mut SoundEffect)>
+    mut sounds: Query<(Entity, &mut SoundEffect)>,
 ) {
     let delta = time.delta();
 

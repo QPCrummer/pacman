@@ -4,9 +4,7 @@ pub(super) struct SpeedPlugin;
 
 impl Plugin for SpeedPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Speed>()
-        ;
+        app.register_type::<Speed>();
     }
 }
 

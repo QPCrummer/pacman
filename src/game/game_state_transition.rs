@@ -1,23 +1,16 @@
 use crate::core::prelude::*;
 use crate::core::system_sets::UpdateGameState;
-use bevy::prelude::*;
 use crate::game::ui::cutscene_screen::get_cutscene;
+use bevy::prelude::*;
 
 pub(super) struct GameStateTransitionPlugin;
 
 impl Plugin for GameStateTransitionPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .init_state::<GameState>()
-            .add_systems(
-                Update,
-                (
-                    update_state
-                        .in_set(UpdateGameState),
-                    update_state_timer
-                ),
-            )
-        ;
+        app.init_state::<GameState>().add_systems(
+            Update,
+            (update_state.in_set(UpdateGameState), update_state_timer),
+        );
     }
 }
 
@@ -44,25 +37,74 @@ fn update_state(
     level: Res<Level>,
 ) {
     match current_state.get() {
-        Game(Start) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 2.0, Game(Ready)),
-        Game(Ready) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 2.5, Game(Running)),
-        Game(Running) => switch_states_based_on_events(&mut next_state, pacman_hit_events, edibles_eaten_events, ghost_eaten_events),
-        Game(PacmanHit) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.0, Game(PacmanDying)),
-        Game(PacmanDying) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.5, Game(PacmanDead)),
-        Game(PacmanDead) => switch_to_ready_or_game_over(&mut commands, &state_timer, &lives, &mut next_state),
+        Game(Start) => switch_when_timer_finished(
+            &mut commands,
+            &state_timer,
+            &mut next_state,
+            2.0,
+            Game(Ready),
+        ),
+        Game(Ready) => switch_when_timer_finished(
+            &mut commands,
+            &state_timer,
+            &mut next_state,
+            2.5,
+            Game(Running),
+        ),
+        Game(Running) => switch_states_based_on_events(
+            &mut next_state,
+            pacman_hit_events,
+            edibles_eaten_events,
+            ghost_eaten_events,
+        ),
+        Game(PacmanHit) => switch_when_timer_finished(
+            &mut commands,
+            &state_timer,
+            &mut next_state,
+            1.0,
+            Game(PacmanDying),
+        ),
+        Game(PacmanDying) => switch_when_timer_finished(
+            &mut commands,
+            &state_timer,
+            &mut next_state,
+            1.5,
+            Game(PacmanDead),
+        ),
+        Game(PacmanDead) => {
+            switch_to_ready_or_game_over(&mut commands, &state_timer, &lives, &mut next_state)
+        }
         Game(GameOver) => switch_to_start_after_game_over(&mut next_state, game_restartet_events),
         Game(LevelTransition) => {
             if should_play_cutscene(level.0 as i32) {
                 switch_to_cutscene(&mut next_state);
             } else {
-                switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 3.0, Game(Ready));
+                switch_when_timer_finished(
+                    &mut commands,
+                    &state_timer,
+                    &mut next_state,
+                    3.0,
+                    Game(Ready),
+                );
             }
-        },
+        }
         Game(Cutscene) => {
             let cutscene = get_cutscene(level);
-            switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, get_cutscene_length(cutscene), Game(Ready));
+            switch_when_timer_finished(
+                &mut commands,
+                &state_timer,
+                &mut next_state,
+                get_cutscene_length(cutscene),
+                Game(Ready),
+            );
         }
-        Game(GhostEatenPause) => switch_when_timer_finished(&mut commands, &state_timer, &mut next_state, 1.0, Game(Running)),
+        Game(GhostEatenPause) => switch_when_timer_finished(
+            &mut commands,
+            &state_timer,
+            &mut next_state,
+            1.0,
+            Game(Running),
+        ),
         _ => {}
     }
 }
@@ -98,17 +140,17 @@ fn switch_when_timer_finished(
     new_state: GameState,
 ) {
     match state_timer {
-        Some(timer) => if timer.finished() {
-            commands.remove_resource::<StateTimer>();
-            game_state.set(new_state);
-        },
-        None => commands.insert_resource(StateTimer(Timer::from_seconds(time, TimerMode::Once)))
+        Some(timer) => {
+            if timer.finished() {
+                commands.remove_resource::<StateTimer>();
+                game_state.set(new_state);
+            }
+        }
+        None => commands.insert_resource(StateTimer(Timer::from_seconds(time, TimerMode::Once))),
     }
 }
 
-fn switch_to_cutscene(
-    game_state: &mut NextState<GameState>,
-) {
+fn switch_to_cutscene(game_state: &mut NextState<GameState>) {
     game_state.set(Game(Cutscene));
 }
 
@@ -119,16 +161,18 @@ fn switch_to_ready_or_game_over(
     game_state: &mut NextState<GameState>,
 ) {
     match state_timer {
-        Some(timer) => if timer.finished() {
-            commands.remove_resource::<StateTimer>();
+        Some(timer) => {
+            if timer.finished() {
+                commands.remove_resource::<StateTimer>();
 
-            if **lives > 0 {
-                game_state.set(Game(Ready))
-            } else {
-                game_state.set(Game(GameOver))
+                if **lives > 0 {
+                    game_state.set(Game(Ready))
+                } else {
+                    game_state.set(Game(GameOver))
+                }
             }
-        },
-        None => commands.insert_resource(StateTimer(Timer::from_seconds(1.0, TimerMode::Once)))
+        }
+        None => commands.insert_resource(StateTimer(Timer::from_seconds(1.0, TimerMode::Once))),
     }
 }
 
@@ -163,10 +207,7 @@ fn switch_to_start_after_game_over(
     }
 }
 
-fn update_state_timer(
-    time: Res<Time>,
-    state_timer: Option<ResMut<StateTimer>>,
-) {
+fn update_state_timer(time: Res<Time>, state_timer: Option<ResMut<StateTimer>>) {
     if let Some(mut timer) = state_timer {
         timer.tick(time.delta());
     }

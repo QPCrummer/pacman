@@ -4,9 +4,7 @@ pub(super) struct LivesPlugin;
 
 impl Plugin for LivesPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Lives>()
-        ;
+        app.register_type::<Lives>();
     }
 }
 

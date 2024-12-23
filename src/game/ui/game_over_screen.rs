@@ -1,23 +1,16 @@
-use bevy::prelude::*;
-use bevy::prelude::Val::Percent;
 use crate::core::prelude::*;
+use bevy::prelude::Val::Percent;
+use bevy::prelude::*;
 
 pub(super) struct GameOverScreenPlugin;
 
 impl Plugin for GameOverScreenPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(GameOver)), (
-                    spawn_screens,
-                    HighScoreSerializable::save,
-                )
-            )
-            .add_systems(
-                OnExit(Game(GameOver)),
-                despawn_screens
-            )
-        ;
+        app.add_systems(
+            OnEnter(Game(GameOver)),
+            (spawn_screens, HighScoreSerializable::save),
+        )
+        .add_systems(OnExit(Game(GameOver)), despawn_screens);
     }
 }
 
@@ -29,10 +22,7 @@ struct GameOverScreen;
 #[derive(Component)]
 struct RestartGameScreen;
 
-fn spawn_screens(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+fn spawn_screens(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Name::new("GameOverScreen"),
         GameOverScreen,
@@ -43,7 +33,8 @@ fn spawn_screens(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 0.0, 0.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(41.5),
             top: Percent(53.0),
@@ -61,7 +52,8 @@ fn spawn_screens(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 0.0, 0.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(33.0),
             top: Percent(96.0),

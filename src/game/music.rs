@@ -1,46 +1,28 @@
 use crate::core::prelude::*;
+use crate::game::ui::settings_screen::Config;
 use bevy::audio::{AudioSink, Volume};
 use bevy::prelude::*;
-use CurrentTrack::*;
-use crate::game::ui::settings_screen::Config;
 
 pub struct MusicPlugin;
 
 impl Plugin for MusicPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(BackgroundMusic::new_muted())
+        app.insert_resource(BackgroundMusic::new_muted())
             .add_systems(
-                OnEnter(Game(Start)), (
-                    play_start_sound,
-                    init_background_music,
-                    despawn_themes
-                ))
-            .add_systems(
-                OnEnter(Game(Running)),
-                unmute_background_music,
+                OnEnter(Game(Start)),
+                (play_start_sound, init_background_music, despawn_themes),
             )
-            .add_systems(Update, (
-                update_background_music,
-                play_track
-            ).run_if(in_game))
+            .add_systems(OnEnter(Game(Running)), unmute_background_music)
             .add_systems(
-                OnExit(Game(Running)),
-                mute_background_music,
+                Update,
+                (update_background_music, play_track).run_if(in_game),
             )
-            .add_systems(
-                OnExit(Game(GameOver)),
-                despawn_tracks
-            )
-        ;
+            .add_systems(OnExit(Game(Running)), mute_background_music)
+            .add_systems(OnExit(Game(GameOver)), despawn_tracks);
     }
 }
 
-fn play_start_sound(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    config: Res<Config>,
-) {
+fn play_start_sound(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Config>) {
     if config.game_sounds {
         commands.spawn((
             Name::new("StartSound"),
@@ -48,7 +30,7 @@ fn play_start_sound(
             AudioBundle {
                 source: asset_server.load("sounds/start.ogg"),
                 ..default()
-            }
+            },
         ));
     }
 }
@@ -66,7 +48,7 @@ pub fn play_cutscene_sound(
             AudioBundle {
                 source: asset_server.load(format!("sounds/cutscene{}.ogg", cutscene)),
                 ..default()
-            }
+            },
         ));
     }
 }
@@ -86,7 +68,7 @@ pub fn play_theme_sound(
             AudioBundle {
                 source: asset_server.load(format!("sounds/theme{}.ogg", theme)),
                 ..default()
-            }
+            },
         ));
     }
 }
@@ -97,9 +79,27 @@ fn init_background_music(
     asset_server: Res<AssetServer>,
     config: Res<Config>,
 ) {
-    start_background_track(&mut commands, &asset_server, SirenBackground, "sounds/siren.ogg", &config);
-    start_background_track(&mut commands, &asset_server, FrightenedBackground, "sounds/frightened.ogg", &config);
-    start_background_track(&mut commands, &asset_server, EatenBackground, "sounds/eaten.ogg", &config);
+    start_background_track(
+        &mut commands,
+        &asset_server,
+        SirenBackground,
+        "sounds/siren.ogg",
+        &config,
+    );
+    start_background_track(
+        &mut commands,
+        &asset_server,
+        FrightenedBackground,
+        "sounds/frightened.ogg",
+        &config,
+    );
+    start_background_track(
+        &mut commands,
+        &asset_server,
+        EatenBackground,
+        "sounds/eaten.ogg",
+        &config,
+    );
 }
 
 fn start_background_track(
@@ -117,22 +117,18 @@ fn start_background_track(
             AudioBundle {
                 source: loaded_assets.load(path),
                 settings: PlaybackSettings::LOOP.with_volume(Volume::new(0.0)),
-            }
+            },
         ));
     }
 }
 
 /// Unmute the background music.
-fn unmute_background_music(
-    mut background_music: ResMut<BackgroundMusic>,
-) {
+fn unmute_background_music(mut background_music: ResMut<BackgroundMusic>) {
     background_music.muted = false
 }
 
 /// Mute the background music.
-fn mute_background_music(
-    mut background_music: ResMut<BackgroundMusic>,
-) {
+fn mute_background_music(mut background_music: ResMut<BackgroundMusic>) {
     background_music.muted = true
 }
 
@@ -149,12 +145,13 @@ fn update_background_music(
     } else if energizer_timer_opt.is_some() {
         background_music.current_track = FrightenedTrack
     } else {
-        background_music.current_track = match eaten_dots.get_eaten() as f32 / eaten_dots.get_max() as f32 {
-            r if (0.0..0.25).contains(&r) => Siren1,
-            r if (0.25..0.5).contains(&r) => Siren2,
-            r if (0.5..0.75).contains(&r) => Siren3,
-            _ => Siren4,
-        }
+        background_music.current_track =
+            match eaten_dots.get_eaten() as f32 / eaten_dots.get_max() as f32 {
+                r if (0.0..0.25).contains(&r) => Siren1,
+                r if (0.25..0.5).contains(&r) => Siren2,
+                r if (0.5..0.75).contains(&r) => Siren3,
+                _ => Siren4,
+            }
     }
 }
 
@@ -173,10 +170,10 @@ fn play_track(
         let mixer = match (
             siren_tracks.get_single(),
             frightened_tracks.get_single(),
-            eaten_tracks.get_single()
+            eaten_tracks.get_single(),
         ) {
             (Ok(siren), Ok(frightened), Ok(eaten)) => Mixer::new(siren, frightened, eaten),
-            _ => return
+            _ => return,
         };
 
         if background_music.muted {
@@ -202,8 +199,16 @@ struct Mixer<'a> {
 }
 
 impl<'a> Mixer<'a> {
-    pub fn new(siren_track: &'a AudioSink, frightened_track: &'a AudioSink, eaten_track: &'a AudioSink) -> Self {
-        Self { siren_track, frightened_track, eaten_track }
+    pub fn new(
+        siren_track: &'a AudioSink,
+        frightened_track: &'a AudioSink,
+        eaten_track: &'a AudioSink,
+    ) -> Self {
+        Self {
+            siren_track,
+            frightened_track,
+            eaten_track,
+        }
     }
 
     fn play_siren_1(self) {
@@ -248,19 +253,13 @@ impl<'a> Mixer<'a> {
     }
 }
 
-fn despawn_tracks(
-    mut commands: Commands,
-    tracks: Query<Entity, With<BackgroundTrack>>
-) {
+fn despawn_tracks(mut commands: Commands, tracks: Query<Entity, With<BackgroundTrack>>) {
     for entity in &tracks {
         commands.entity(entity).despawn()
     }
 }
 
-fn despawn_themes(
-    mut commands: Commands,
-    tracks: Query<Entity, With<Theme>>
-) {
+fn despawn_themes(mut commands: Commands, tracks: Query<Entity, With<Theme>>) {
     for entity in &tracks {
         commands.entity(entity).despawn()
     }

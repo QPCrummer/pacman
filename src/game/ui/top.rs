@@ -1,29 +1,18 @@
-use std::time::Duration;
-use bevy::prelude::*;
-use bevy::prelude::Val::Percent;
 use crate::core::prelude::*;
+use bevy::prelude::Val::Percent;
+use bevy::prelude::*;
+use std::time::Duration;
 
 pub(super) struct TopUIPlugin;
 
 impl Plugin for TopUIPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(
-                OnEnter(Game(Start)),
-                spawn_top_ui,
-            )
+        app.add_systems(OnEnter(Game(Start)), spawn_top_ui)
             .add_systems(
                 Update,
-                (
-                    update_scoreboard,
-                    update_high_score_board,
-                    blink_1_up_label
-                ).run_if(in_game))
-            .add_systems(
-                OnExit(Game(GameOver)),
-                despawn_top_ui,
+                (update_scoreboard, update_high_score_board, blink_1_up_label).run_if(in_game),
             )
-        ;
+            .add_systems(OnExit(Game(GameOver)), despawn_top_ui);
     }
 }
 
@@ -43,38 +32,32 @@ struct HighScoreBoard;
 #[derive(Component)]
 struct OneUpLabel;
 
-fn spawn_top_ui(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+fn spawn_top_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load(FONT);
 
-    commands.spawn((
-        Name::new("TopUI"),
-        TopUI,
-        NodeBundle {
-            style: Style {
-                width: Percent(40.0),
-                height: Percent(10.0),
-                justify_content: JustifyContent::SpaceBetween,
-                left: Percent(30.0),
-                position_type: PositionType::Absolute,
+    commands
+        .spawn((
+            Name::new("TopUI"),
+            TopUI,
+            NodeBundle {
+                style: Style {
+                    width: Percent(40.0),
+                    height: Percent(10.0),
+                    justify_content: JustifyContent::SpaceBetween,
+                    left: Percent(30.0),
+                    position_type: PositionType::Absolute,
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        }
-    ))
+        ))
         .with_children(|parent| spawn_score_board(font.clone(), parent))
         .with_children(|parent| spawn_high_score_board(font.clone(), parent))
         .with_children(|parent| spawn_high_score_label(font.clone(), parent))
-        .with_children(|parent| spawn_1up_label(font.clone(), parent))
-    ;
+        .with_children(|parent| spawn_1up_label(font.clone(), parent));
 }
 
-fn spawn_score_board(
-    font: Handle<Font>,
-    parent: &mut ChildBuilder,
-) {
+fn spawn_score_board(font: Handle<Font>, parent: &mut ChildBuilder) {
     parent.spawn((
         Name::new("ScoreBoard"),
         ScoreBoard,
@@ -85,18 +68,16 @@ fn spawn_score_board(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             top: Percent(50.0),
             ..default()
-        })
+        }),
     ));
 }
 
-fn spawn_high_score_board(
-    font: Handle<Font>,
-    parent: &mut ChildBuilder,
-) {
+fn spawn_high_score_board(font: Handle<Font>, parent: &mut ChildBuilder) {
     parent.spawn((
         Name::new("HighScoreBoard"),
         HighScoreBoard,
@@ -107,19 +88,17 @@ fn spawn_high_score_board(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             left: Percent(50.0),
             top: Percent(50.0),
             ..default()
-        })
+        }),
     ));
 }
 
-fn spawn_high_score_label(
-    font: Handle<Font>,
-    parent: &mut ChildBuilder,
-) {
+fn spawn_high_score_label(font: Handle<Font>, parent: &mut ChildBuilder) {
     parent.spawn((
         Name::new("HighScoreBoardLabel"),
         TextBundle::from_section(
@@ -129,12 +108,13 @@ fn spawn_high_score_label(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             top: Percent(10.0),
             left: Percent(30.0),
             ..default()
-        })
+        }),
     ));
 }
 
@@ -142,10 +122,7 @@ fn spawn_high_score_label(
 ///
 /// To be honest, I didn't find out what this exactly does. It's not a Super Mario 1UP (aka extra live), but probably a pinball 1UP
 /// (if 1UP is displayed then you see the score of player one; when he is done, it says 2UP and its player twos turn and score).
-fn spawn_1up_label(
-    font: Handle<Font>,
-    parent: &mut ChildBuilder,
-) {
+fn spawn_1up_label(font: Handle<Font>, parent: &mut ChildBuilder) {
     parent.spawn((
         Name::new("1UPLabel"),
         OneUpLabel,
@@ -156,18 +133,16 @@ fn spawn_1up_label(
                 font_size: 20.0,
                 color: Color::srgb(1.0, 1.0, 1.0),
             },
-        ).with_style(Style {
+        )
+        .with_style(Style {
             position_type: PositionType::Absolute,
             top: Percent(10.0),
             ..default()
-        })
+        }),
     ));
 }
 
-fn update_scoreboard(
-    score: Res<Score>,
-    mut query: Query<&mut Text, With<ScoreBoard>>,
-) {
+fn update_scoreboard(score: Res<Score>, mut query: Query<&mut Text, With<ScoreBoard>>) {
     if !score.is_changed() {
         return;
     }
@@ -195,7 +170,10 @@ struct OneUpBlinkTimer(Timer);
 
 impl Default for OneUpBlinkTimer {
     fn default() -> Self {
-        OneUpBlinkTimer(Timer::new(Duration::from_secs_f32(0.2), TimerMode::Repeating))
+        OneUpBlinkTimer(Timer::new(
+            Duration::from_secs_f32(0.2),
+            TimerMode::Repeating,
+        ))
     }
 }
 
@@ -214,16 +192,13 @@ fn blink_1_up_label(
             *vis = match *vis {
                 Visibility::Visible => Visibility::Hidden,
                 Visibility::Hidden => Visibility::Visible,
-                _ => *vis
+                _ => *vis,
             };
         }
     }
 }
 
-fn despawn_top_ui(
-    mut commands: Commands,
-    query: Query<Entity, With<TopUI>>,
-) {
+fn despawn_top_ui(mut commands: Commands, query: Query<Entity, With<TopUI>>) {
     for e in &query {
         commands.entity(e).despawn_recursive()
     }

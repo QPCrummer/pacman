@@ -6,18 +6,15 @@ pub(super) struct MoveThroughTunnelPlugin;
 
 impl Plugin for MoveThroughTunnelPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_event::<GhostPassedTunnel>()
-            .add_systems(Update, (
-                move_pacman_through_tunnel,
-                move_ghost_trough_tunnel
-            ).run_if(in_state(Game(Running))))
-        ;
+        app.add_event::<GhostPassedTunnel>().add_systems(
+            Update,
+            (move_pacman_through_tunnel, move_ghost_trough_tunnel).run_if(in_state(Game(Running))),
+        );
     }
 }
 
 /// Event. Fired when a ghost moved through a tunnel.
-#[derive( Event, Deref, DerefMut)]
+#[derive(Event, Deref, DerefMut)]
 pub struct GhostPassedTunnel(pub Entity);
 
 fn move_pacman_through_tunnel(
