@@ -34,6 +34,7 @@ fn main() {
                 ..default()
             })
             .set(ImagePlugin::default_nearest()),
+        #[cfg(not(target_os = "macos"))]
         WindowIconPlugin::new("./assets/icon.png"),
     ))
     .insert_resource(Config::load().unwrap())
