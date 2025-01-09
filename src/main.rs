@@ -1,3 +1,4 @@
+use std::env;
 use crate::core::game_state::MainMenu::Menu;
 use crate::core::CorePlugin;
 use crate::game::ui::settings_screen::Config;
@@ -9,7 +10,6 @@ use bevy_asset_preload::{load_assets, AssetPreloadPlugin};
 use bevy_sprite_sheet::SpriteSheetPlugin;
 use bevy_window_icon::WindowIconPlugin;
 use core::prelude::*;
-use vleue_kinetoscope::AnimatedImagePlugin;
 
 mod core;
 pub mod game;
@@ -18,6 +18,10 @@ mod spawn;
 
 fn main() {
     let mut app = App::new();
+    let current_dir = env::current_dir().unwrap();
+    let path = current_dir.join("assets/icon.png");
+    let icon_path = path.to_str().unwrap();
+
     app.add_plugins((
         DefaultPlugins
             .set(WindowPlugin {
@@ -34,11 +38,9 @@ fn main() {
                 ..default()
             })
             .set(ImagePlugin::default_nearest()),
-        #[cfg(not(target_os = "macos"))]
-        WindowIconPlugin::new("./assets/icon.png"),
+        WindowIconPlugin::new(icon_path),
     ))
     .insert_resource(Config::load().unwrap())
-    .add_plugins(AnimatedImagePlugin)
     .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
     .add_plugins((
         CorePlugin,

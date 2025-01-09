@@ -1,6 +1,5 @@
 use crate::core::prelude::*;
 use crate::core::system_sets::UpdateGameState;
-use crate::game::ui::cutscene_screen::get_cutscene;
 use bevy::prelude::*;
 
 pub(super) struct GameStateTransitionPlugin;
@@ -88,16 +87,6 @@ fn update_state(
                 );
             }
         }
-        Game(Cutscene) => {
-            let cutscene = get_cutscene(level);
-            switch_when_timer_finished(
-                &mut commands,
-                &state_timer,
-                &mut next_state,
-                get_cutscene_length(cutscene),
-                Game(Ready),
-            );
-        }
         Game(GhostEatenPause) => switch_when_timer_finished(
             &mut commands,
             &state_timer,
@@ -122,14 +111,6 @@ fn should_play_cutscene(level: i32) -> bool {
 
     let n = (-3 + sqrt_discriminant) / 2;
     n > 0 && (n * n + 3 * n) / 2 == level
-}
-
-fn get_cutscene_length(cutscene: i8) -> f32 {
-    match cutscene {
-        1 => 10.53,
-        2 => 8.3,
-        _ => 8.56, // Cutscene 3
-    }
 }
 
 fn switch_when_timer_finished(
