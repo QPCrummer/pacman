@@ -82,7 +82,7 @@ fn update_state_on_eaten_pause(
     }
 }
 
-fn collect_events<'a, E: Copy + Event>(mut event_reader: EventReader<E>) -> Vec<E> {
+fn collect_events<E: Copy + Event>(mut event_reader: EventReader<E>) -> Vec<E> {
     event_reader.read().copied().collect()
 }
 

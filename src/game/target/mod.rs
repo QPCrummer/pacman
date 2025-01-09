@@ -276,9 +276,7 @@ impl<'a, 'b, 'c> TargetSetter<'a, 'b, 'c> {
         let next_target_neighbour = match possible_neighbours.len() {
             0 => (ghost_pos.neighbour_in_direction(opposite_dir), opposite_dir),
             1 => *possible_neighbours.first().unwrap(),
-            len => *possible_neighbours
-                .get(self.random.zero_to(len))
-                .unwrap(),
+            len => *possible_neighbours.get(self.random.zero_to(len)).unwrap(),
         };
         self.set_target_to_neighbour(next_target_neighbour)
     }

@@ -12,10 +12,17 @@ use bevy::core::Name;
 use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::Val::Percent;
-use bevy::prelude::{default, in_state, Camera, Camera2dBundle, ClearColorConfig, Commands, Component, Condition, Deref, DerefMut, Entity, Image, ImageBundle, IntoSystemConfigs, KeyCode, NextState, NonSendMut, OnExit, PositionType, Query, Res, ResMut, Resource, SpriteBundle, Style, TextBundle, TextStyle, Time, Timer, TimerMode, Transform, With};
+use bevy::prelude::{
+    default, in_state, Camera, Camera2dBundle, ClearColorConfig, Commands, Component, Condition,
+    Deref, DerefMut, Entity, Image, ImageBundle, IntoSystemConfigs, KeyCode, NextState, NonSendMut,
+    OnExit, PositionType, Query, Res, ResMut, Resource, SpriteBundle, Style, TextBundle, TextStyle,
+    Time, Timer, TimerMode, Transform, With,
+};
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::{TextureDimension, TextureFormat, TextureUsages};
+use bevy::ui::ZIndex;
 use bevy::utils::HashMap;
+use ffmpeg_next as ffmpeg;
 use ffmpeg_next::format::{input, Pixel};
 use ffmpeg_next::frame::Video;
 use ffmpeg_next::media::Type;
@@ -24,8 +31,6 @@ use rand::random;
 use std::env;
 use std::path::Path;
 use std::time::Duration;
-use bevy::ui::ZIndex;
-use ffmpeg_next as ffmpeg;
 
 pub(super) struct MainMenuScreenPlugin;
 
@@ -41,12 +46,12 @@ impl Plugin for MainMenuScreenPlugin {
                 (get_next_theme, tick_button_pressed_timer)
                     .run_if(in_state(MainMenu(Menu)).or_else(in_state(MainMenu(Settings)))),
             )
-            .add_systems(
-                Update,
-                render_frame.run_if(in_state(MainMenu(Menu)))
-            )
+            .add_systems(Update, render_frame.run_if(in_state(MainMenu(Menu))))
             .init_non_send_resource::<VideoResource>()
-            .insert_resource(FrameTimer(Timer::new(Duration::from_secs_f32(1./30.), TimerMode::Repeating)))
+            .insert_resource(FrameTimer(Timer::new(
+                Duration::from_secs_f32(1. / 30.),
+                TimerMode::Repeating,
+            )))
             .insert_resource(MainMenuTimer(Timer::from_seconds(8.0, TimerMode::Once)))
             .insert_resource(ButtonTimer(Timer::from_seconds(0.5, TimerMode::Once)))
             .insert_resource(ButtonCanPress(true));
@@ -429,24 +434,31 @@ fn spawn_screen(
             }),
         ));
 
-        let (video_player, video_player_non_send) =
-            VideoPlayer::new(env::current_dir().unwrap().join("cutscenes/main_menu.mp4"), images).unwrap();
+        let (video_player, video_player_non_send) = VideoPlayer::new(
+            env::current_dir().unwrap().join("cutscenes/main_menu.mp4"),
+            images,
+        )
+        .unwrap();
 
-        let entity = commands.spawn((ImageBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                left: Percent(-58.0),
-                top: Percent(-15.0),
-                ..default()
-            },
-            z_index: ZIndex::Global(-1),
-            transform: Transform {
-                scale: Vec3::splat(0.3), // Scale the sprite to its original size
-                ..Default::default()
-            },
-            image: video_player.image_handle.clone().into(),
-            ..default()
-        }, MainMenuScreen))
+        let entity = commands
+            .spawn((
+                ImageBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        left: Percent(-58.0),
+                        top: Percent(-15.0),
+                        ..default()
+                    },
+                    z_index: ZIndex::Global(-1),
+                    transform: Transform {
+                        scale: Vec3::splat(0.3), // Scale the sprite to its original size
+                        ..Default::default()
+                    },
+                    image: video_player.image_handle.clone().into(),
+                    ..default()
+                },
+                MainMenuScreen,
+            ))
             .insert(video_player)
             .id();
         video_resource
@@ -546,7 +558,7 @@ struct VideoPlayer {
 }
 
 impl VideoPlayer {
-    fn new<'a, P>(
+    fn new<P>(
         path: P,
         mut images: ResMut<Assets<Image>>,
     ) -> Result<(VideoPlayer, VideoPlayerNonSendData), ffmpeg::Error>
@@ -588,7 +600,7 @@ impl VideoPlayer {
             &[0; 4],
             // Color::BLACK.
             TextureFormat::Rgba8UnormSrgb,
-            RenderAssetUsages::default()
+            RenderAssetUsages::default(),
         );
         image.texture_descriptor.usage = TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING;
 
@@ -613,11 +625,11 @@ impl VideoPlayer {
 struct FrameTimer(Timer);
 
 fn render_frame(
-                 time: Res<Time>,
-                 mut frame_timer: ResMut<FrameTimer>,
-                 mut video_player_query: Query<(&mut VideoPlayer, Entity)>,
-                 mut video_resource: NonSendMut<VideoResource>,
-                 mut images: ResMut<Assets<Image>>,
+    time: Res<Time>,
+    mut frame_timer: ResMut<FrameTimer>,
+    mut video_player_query: Query<(&mut VideoPlayer, Entity)>,
+    mut video_resource: NonSendMut<VideoResource>,
+    mut images: ResMut<Assets<Image>>,
 ) {
     // Update the timer with the time delta
     frame_timer.0.tick(time.delta());
@@ -626,7 +638,8 @@ fn render_frame(
         for (video_player, entity) in video_player_query.iter_mut() {
             let video_player_non_send = video_resource.video_players.get_mut(&entity).unwrap();
             // read packets from stream until complete frame received
-            while let Some((stream, packet)) = video_player_non_send.input_context.packets().next() {
+            while let Some((stream, packet)) = video_player_non_send.input_context.packets().next()
+            {
                 // check if packets is for the selected video stream
                 if stream.index() == video_player.video_stream_index {
                     // pass packet to decoder
@@ -658,7 +671,9 @@ fn render_frame(
                         .best(Type::Video)
                         .ok_or(ffmpeg::Error::StreamNotFound)
                         .unwrap();
-                    let context_decoder = ffmpeg::codec::context::Context::from_parameters(input_stream.parameters()).unwrap();
+                    let context_decoder =
+                        ffmpeg::codec::context::Context::from_parameters(input_stream.parameters())
+                            .unwrap();
                     let new_decoder = context_decoder.decoder().video().unwrap();
 
                     // Update the video player non-send data

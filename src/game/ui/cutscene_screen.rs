@@ -20,13 +20,13 @@ pub(super) struct CutsceneScreenPlugin;
 impl Plugin for CutsceneScreenPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(Game(Cutscene)), (spawn_screens,))
-            .add_systems(
-                Update,
-                render_frame.run_if(in_state(Game(Cutscene)))
-            )
+            .add_systems(Update, render_frame.run_if(in_state(Game(Cutscene))))
             .add_systems(OnExit(Game(Cutscene)), despawn_screens)
             .init_non_send_resource::<VideoResource>()
-            .insert_resource(FrameTimer(Timer::new(Duration::from_secs_f32(1./30.), TimerMode::Repeating)));
+            .insert_resource(FrameTimer(Timer::new(
+                Duration::from_secs_f32(1. / 30.),
+                TimerMode::Repeating,
+            )));
     }
 }
 
@@ -44,24 +44,33 @@ fn spawn_screens(
 ) {
     let cutscene = get_cutscene(level);
 
-    let (video_player, video_player_non_send) =
-        VideoPlayer::new(env::current_dir().unwrap().join(format!("cutscenes/cutscene{}.mp4", cutscene)), images).unwrap();
+    let (video_player, video_player_non_send) = VideoPlayer::new(
+        env::current_dir()
+            .unwrap()
+            .join(format!("cutscenes/cutscene{}.mp4", cutscene)),
+        images,
+    )
+    .unwrap();
 
-    let entity = commands.spawn((ImageBundle {
-        style: Style {
-            position_type: PositionType::Absolute,
-            left: Percent(-55.0),
-            top: Percent(-35.0),
-            ..default()
-        },
-        z_index: ZIndex::Global(301),
-        transform: Transform {
-            scale: Vec3::splat(0.5),
-            ..Default::default()
-        },
-        image: video_player.image_handle.clone().into(),
-        ..default()
-    }, CutsceneComponent))
+    let entity = commands
+        .spawn((
+            ImageBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    left: Percent(-55.0),
+                    top: Percent(-35.0),
+                    ..default()
+                },
+                z_index: ZIndex::Global(301),
+                transform: Transform {
+                    scale: Vec3::splat(0.5),
+                    ..Default::default()
+                },
+                image: video_player.image_handle.clone().into(),
+                ..default()
+            },
+            CutsceneComponent,
+        ))
         .insert(video_player)
         .id();
     video_resource
@@ -121,7 +130,7 @@ struct VideoPlayer {
 }
 
 impl VideoPlayer {
-    fn new<'a, P>(
+    fn new<P>(
         path: P,
         mut images: ResMut<Assets<Image>>,
     ) -> Result<(VideoPlayer, VideoPlayerNonSendData), ffmpeg::Error>
@@ -163,7 +172,7 @@ impl VideoPlayer {
             &[0; 4],
             // Color::BLACK.
             TextureFormat::Rgba8UnormSrgb,
-            RenderAssetUsages::default()
+            RenderAssetUsages::default(),
         );
         image.texture_descriptor.usage = TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING;
 
@@ -201,7 +210,8 @@ fn render_frame(
         for (video_player, entity) in video_player_query.iter_mut() {
             let video_player_non_send = video_resource.video_players.get_mut(&entity).unwrap();
             // read packets from stream until complete frame received
-            while let Some((stream, packet)) = video_player_non_send.input_context.packets().next() {
+            while let Some((stream, packet)) = video_player_non_send.input_context.packets().next()
+            {
                 // check if packets is for the selected video stream
                 if stream.index() == video_player.video_stream_index {
                     // pass packet to decoder

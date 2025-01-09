@@ -1,4 +1,3 @@
-use std::env;
 use crate::core::game_state::MainMenu::Menu;
 use crate::core::CorePlugin;
 use crate::game::ui::settings_screen::Config;
@@ -10,6 +9,7 @@ use bevy_asset_preload::{load_assets, AssetPreloadPlugin};
 use bevy_sprite_sheet::SpriteSheetPlugin;
 use bevy_window_icon::WindowIconPlugin;
 use core::prelude::*;
+use std::env;
 
 mod core;
 pub mod game;
