@@ -49,7 +49,8 @@ Did some cutting with [LosslessCut](https://github.com/mifi/lossless-cut) and ht
 (Tip: Don't even try to download the sounds from other sides than YouTube. The quality is trash and the tracks are incomplete)
 
 ## Playing
-In order to play, you must install [FFMPEG](https://www.ffmpeg.org/download.html) and add it to the Environmental Variables.
+In order to play, you must install [FFMPEG](https://www.ffmpeg.org/download.html) and add it to the Environmental Variables. 
+**Be sure to download the shared builds of FFMPEG!**
 Next, compile the binary for the correct target. In order to compile, you must have LLVM installed. Instructions can be found
 [here](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building). Optionally, 3 background theme songs can be created to play
 while in the main menu. They must be named `theme1.ogg`, `theme2.ogg`, and `theme3.ogg`, and placed inside the `assets/sounds/` directory.
